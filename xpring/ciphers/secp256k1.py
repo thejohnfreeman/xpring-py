@@ -1,1 +1,3 @@
 SEED_PREFIX = b'\x21'
+
+KEY_PREFIX = '00'
