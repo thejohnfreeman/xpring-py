@@ -1,6 +1,6 @@
 from invoke import task
 import multiprocessing
-import pathlib
+from pathlib import Path
 import sys
 import toml
 
@@ -14,12 +14,18 @@ def get_package_name() -> str:
 
 @task
 def proto(c):
-    python_out = 'xpring/generated'
-    pathlib.Path(python_out).mkdir(exist_ok=True)
-    proto_path = 'xpring-common-protocol-buffers/proto'
+    # protoc does not let us prefix the package for protobufs,
+    # so we use this workaround.
+    # https://github.com/protocolbuffers/protobuf/issues/1491
+
+    src_dir = 'xpring-common-protocol-buffers/proto'
+    dst_dir = 'xpring/proto'
+
+    Path(dst_dir).mkdir(exist_ok=True)
     c.run(
-        f'protoc --proto_path={proto_path} --python_out={python_out} {proto_path}/*'
+        f'python -m grpc_tools.protoc --proto_path={src_dir} --python_out={dst_dir} --grpc_python_out={dst_dir} {src_dir}/*.proto'
     )
+    c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
 
 
 @task
