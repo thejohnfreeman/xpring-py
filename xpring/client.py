@@ -1,11 +1,12 @@
 import grpc
+from xpring.proto.get_fee_request_pb2 import GetFeeRequest
 from xpring.proto.get_account_info_request_pb2 import GetAccountInfoRequest
 from xpring.proto.xrp_ledger_pb2_grpc import XRPLedgerStub
 
 
 class XpringClient:
 
-    def __init__(self, grpc_client):
+    def __init__(self, grpc_client: XRPLedgerStub):
         self.grpc_client = grpc_client
 
     @classmethod
@@ -21,3 +22,7 @@ class XpringClient:
     def get_balance(self, address: str):
         account_info = self.get_account_info(address)
         return account_info.balance
+
+    def get_fee(self):
+        request = GetFeeRequest()
+        return self.grpc_client.GetFee(request)
