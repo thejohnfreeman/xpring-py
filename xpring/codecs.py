@@ -1,21 +1,9 @@
 import enum
+import math
+import typing as t
 
-import baseconv
-import nacl.encoding
-import nacl.hash
-
-
-def sha256(message: bytes) -> bytes:
-    return nacl.hash.sha256(message, encoder=nacl.encoding.RawEncoder())
-
-
-def checksum(message: bytes) -> bytes:
-    return sha256(sha256(message))[:4]
-
-
-class Encoding(enum.Enum):
-    ED25519 = b'\x01\xE1\x4B'
-    SECP256K1 = b'\x21'
+from xpring import hashes
+from xpring.ciphers import Cipher, ed25519, KNOWN_CIPHERS
 
 
 class Codec:
@@ -23,19 +11,54 @@ class Codec:
     def __init__(
         self,
         alphabet='rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz',
-        checksum=checksum
+        checksum=hashes.checksum
     ):
         self.alphabet = alphabet
-        self.codec = baseconv.BaseConverter(alphabet)
         self.base = len(alphabet)
         self.checksum = checksum
 
-    def encode(self, message: bytes) -> bytes:
-        check = self.checksum(message)
-        return self.codec.encode(int.from_bytes(message + check, 'big'))
+    def encode(self, bites: bytes) -> str:
+        i = int.from_bytes(bites, 'big')
+        s = ''
+        while (i > 0):
+            i, digit = divmod(i, self.base)
+            s += self.alphabet[digit]
+        return s[::-1]
 
-    def encode_seed(
-        self, seed: str, encoding: Encoding = Encoding.ED25519
-    ) -> bytes:
-        message = encoding.value + bytes.fromhex(seed)
-        return self.encode(message)
+    def encode_with_checksum(self, bites: bytes) -> str:
+        check = self.checksum(bites)
+        return self.encode(bites + check)
+
+    def encode_seed(self, entropy: bytes, cipher: Cipher = ed25519) -> str:
+        bites_with_prefix = cipher.SEED_PREFIX + entropy
+        return self.encode_with_checksum(bites_with_prefix)
+
+    def decode(self, encoded: str) -> bytes:
+        i = 0
+        for c in encoded:
+            i = i * self.base + self.alphabet.index(c)
+        # Special-case the first character to avoid overshooting.
+        max = pow(self.base, len(encoded) - 1) * self.alphabet.index(encoded[0])
+        # 256 is the base for byte encoding.
+        length = math.ceil(math.log(max, 256))
+        return i.to_bytes(length, 'big')
+
+    def decode_with_checksum(self, encoded: str) -> bytes:
+        decoded = self.decode(encoded)
+        check = decoded[-4:]
+        bites = decoded[:-4]
+        if self.checksum(bites) != check:
+            raise ValueError('wrong checksum')
+        return bites
+
+    def decode_seed(
+        self, encoded: str, known_ciphers: t.Iterable[Cipher] = KNOWN_CIPHERS
+    ) -> (bytes, Cipher):
+        bites = self.decode_with_checksum(encoded)
+        for cipher in known_ciphers:
+            if bites.startswith(cipher.SEED_PREFIX):
+                return (bites[len(cipher.SEED_PREFIX):], cipher)
+        raise ValueError('unknown encoding')
+
+
+DEFAULT_CODEC = Codec()

@@ -1,0 +1,1 @@
+SEED_PREFIX = b'\x01\xE1\x4B'

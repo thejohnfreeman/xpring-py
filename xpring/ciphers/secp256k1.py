@@ -1,0 +1,1 @@
+SEED_PREFIX = b'\x21'
