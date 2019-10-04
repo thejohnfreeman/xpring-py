@@ -9,32 +9,28 @@ KEY_PREFIX = 'ED'
 
 class Key:
 
-    def __init__(self, prefix: str, attr: str, key) -> None:
+    def __init__(self, bites: bytes, prefix: str) -> None:
+        self.bytes = bites
         self.prefix = prefix
-        self.attr = attr
-        self.key = key
+
+    def __bytes__(self) -> bytes:
+        return self.bytes
 
     def __str__(self) -> str:
-        return self.prefix + getattr(self.key, self.attr)[:32].hex().upper()
+        return self.prefix + self.bytes.hex().upper()
 
 
 def derive_key_pair(entropy: bytes) -> nacl.signing.SigningKey:
-    private_key_bytes = hashes.sha512half(entropy)
-    private_key = nacl.signing.SigningKey(private_key_bytes)
-    public_key = private_key.verify_key
-    return (
-        Key(KEY_PREFIX, '_key', public_key),
-        Key(KEY_PREFIX, '_signing_key', private_key),
-    )
+    private_key = hashes.sha512half(entropy)
+    public_key = nacl.signing.SigningKey(private_key).verify_key._key[:32]  # pylint: disable=protected-access
+    return (Key(public_key, KEY_PREFIX), Key(private_key, KEY_PREFIX))
 
 
-def sign(message: bytes, private_key: nacl.signing.SigningKey) -> bytes:
-    return private_key.key.sign(message, hashes.RAW_ENCODER).signature
+def sign(message: bytes, private_key: Key) -> bytes:
+    key = nacl.signing.SigningKey(private_key.bytes)
+    return key.sign(message, hashes.RAW_ENCODER).signature
 
 
-def verify(
-    message: bytes, signature: bytes, public_key: nacl.signing.VerifyKey
-) -> bytes:
-    return public_key.key.verify(
-        message, signature, hashes.RAW_ENCODER
-    ) == message
+def verify(message: bytes, signature: bytes, public_key: Key) -> bytes:
+    key = nacl.signing.VerifyKey(public_key.bytes)
+    return key.verify(message, signature, hashes.RAW_ENCODER) == message

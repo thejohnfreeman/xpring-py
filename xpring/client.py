@@ -4,13 +4,13 @@ from xpring.proto.get_account_info_request_pb2 import GetAccountInfoRequest
 from xpring.proto.xrp_ledger_pb2_grpc import XRPLedgerStub
 
 
-class XpringClient:
+class Client:
 
     def __init__(self, grpc_client: XRPLedgerStub):
         self.grpc_client = grpc_client
 
     @classmethod
-    def from_endpoint(cls, grpc_url: str = 'grpc.xpring.tech:80'):
+    def from_url(cls, grpc_url: str = 'grpc.xpring.tech:80'):
         channel = grpc.insecure_channel(grpc_url)
         grpc_client = XRPLedgerStub(channel)
         return cls(grpc_client)
