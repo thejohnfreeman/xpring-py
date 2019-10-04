@@ -10,7 +10,7 @@ class XpringClient:
         self.grpc_client = grpc_client
 
     @classmethod
-    def xpringClientWithEndpoint(cls, grpc_url: str = 'grpc.xpring.tech:80'):
+    def from_endpoint(cls, grpc_url: str = 'grpc.xpring.tech:80'):
         channel = grpc.insecure_channel(grpc_url)
         grpc_client = XRPLedgerStub(channel)
         return cls(grpc_client)

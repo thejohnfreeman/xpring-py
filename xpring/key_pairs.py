@@ -1,4 +1,20 @@
-from xpring import codecs, hashes
+from dataclasses import dataclass
+import typing as t
+
+from xpring import ciphers, codecs, hashes
+
+
+@dataclass
+class KeyPair:
+    public_key: t.Any
+    private_key: t.Any
+    cipher: ciphers.Cipher
+
+    def sign(self, message: bytes) -> bytes:
+        return self.cipher.sign(message, self.private_key)
+
+    def verify(self, message: bytes, signature: bytes) -> bool:
+        return self.cipher.verify(message, signature, self.public_key)
 
 
 def derive_key_pair(seed: str):
@@ -9,4 +25,4 @@ def derive_key_pair(seed: str):
     signature = cipher.sign(message, private_key)
     if not cipher.verify(message, signature, public_key):
         raise AssertionError('public key does not verify private key')
-    return (public_key, private_key)
+    return KeyPair(public_key, private_key, cipher)
