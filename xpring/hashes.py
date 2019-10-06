@@ -1,3 +1,5 @@
+import hashlib
+
 import nacl.encoding
 import nacl.hash
 
@@ -14,3 +16,9 @@ def checksum(bites: bytes) -> bytes:
 
 def sha512half(bites: bytes) -> bytes:
     return nacl.hash.sha512(bites, encoder=RAW_ENCODER)[:32]
+
+
+def ripemd160(bites: bytes) -> bytes:
+    hasher = hashlib.new('ripemd160')
+    hasher.update(bites)
+    return hasher.digest()

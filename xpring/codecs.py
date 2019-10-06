@@ -5,6 +5,8 @@ import typing as t
 from xpring import hashes
 from xpring.ciphers import Cipher, ed25519, KNOWN_CIPHERS
 
+ADDRESS_PREFIX = b'\x00'
+
 
 class Codec:
 
@@ -30,8 +32,14 @@ class Codec:
         return self.encode(bites + check)
 
     def encode_seed(self, entropy: bytes, cipher: Cipher = ed25519) -> str:
+        if len(entropy) != 16:
+            raise ValueError('seed must have exactly 16 bytes of entropy')
         bites_with_prefix = cipher.SEED_PREFIX + entropy
         return self.encode_with_checksum(bites_with_prefix)
+
+    def encode_address(self, address: bytes) -> str:
+        bites_with_prefix = ADDRESS_PREFIX + address
+        return 'r' + self.encode_with_checksum(bites_with_prefix)
 
     def decode(self, encoded: str) -> bytes:
         i = 0
@@ -59,6 +67,10 @@ class Codec:
             if bites.startswith(cipher.SEED_PREFIX):
                 return (bites[len(cipher.SEED_PREFIX):], cipher)
         raise ValueError('unknown encoding')
+
+    def decode_address(self, encoded: str) -> bytes:
+        bites = self.decode_with_checksum(encoded)
+        return bites[len(ADDRESS_PREFIX):]
 
 
 DEFAULT_CODEC = Codec()

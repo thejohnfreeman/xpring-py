@@ -1,15 +1,19 @@
-from xpring import key_pairs
+from xpring.key_pairs import KeyPair
 
 
 class Wallet:
 
-    def __init__(self, key_pair: key_pairs.KeyPair):
+    def __init__(self, key_pair: KeyPair):
         self.key_pair = key_pair
 
     @classmethod
     def from_seed(cls, seed):
-        key_pair = key_pairs.derive_key_pair(seed)
+        key_pair = KeyPair.from_seed(seed)
         return cls(key_pair)
+
+    @property
+    def address(self):
+        return self.key_pair.address
 
     @property
     def public_key(self):

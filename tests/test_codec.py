@@ -25,9 +25,9 @@ def test_encode_ed25519_seed(hex, encoded):
 
 @pytest.mark.parametrize('hex,encoded', ED25519_EXAMPLES)
 def test_decode_ed25519_seed(hex, encoded):
-    bites, cipher = codec.decode_seed(encoded)
+    seed, cipher = codec.decode_seed(encoded)
     assert cipher == ed25519
-    assert bites.hex().upper() == hex
+    assert seed.hex().upper() == hex
 
 
 @pytest.mark.parametrize('hex,encoded', SECP256K1_EXAMPLES)
@@ -37,6 +37,12 @@ def test_encode_secp256k1_seed(hex, encoded):
 
 @pytest.mark.parametrize('hex,encoded', SECP256K1_EXAMPLES)
 def test_decode_secp256k1_seed(hex, encoded):
-    bites, cipher = codec.decode_seed(encoded)
+    seed, cipher = codec.decode_seed(encoded)
     assert cipher == secp256k1
-    assert bites.hex().upper() == hex
+    assert seed.hex().upper() == hex
+
+
+def test_encode_address():
+    address = bytes.fromhex('BA8E78626EE42C41B46D46C3048DF3A1C3C87072')
+    encoded = 'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
+    assert codec.encode_address(address) == encoded
