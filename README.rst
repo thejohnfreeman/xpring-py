@@ -106,3 +106,47 @@ Balance
 
 
 .. end-include
+
+
+Develop
+=======
+
+------------
+Dependencies
+------------
+
+The protocol buffers are in a submodule:
+
+.. code-block:: shell
+
+   git submodule init
+
+Use Poetry_ to install dependencies and build the protocol buffers:
+
+.. code-block:: shell
+
+   poetry install
+   poetry run invoke proto
+
+.. _Poetry: https://python-poetry.org/docs/
+
+-----
+Tasks
+-----
+
+There are several Invoke_ tasks:
+
+.. _Invoke: http://www.pyinvoke.org/
+
+.. code-block:: shell
+
+   poetry run invoke <task>
+
+- ``test``: Pytest_ with coverage and doctests.
+- ``lint``: Mypy_, Pylint_, and Pydocstyle_.
+- ``serve``: Serve the docs locally and rebuild them on file changes.
+
+.. _Pytest: https://docs.pytest.org/
+.. _Mypy: https://mypy.readthedocs.io/
+.. _Pylint: https://www.pylint.org/
+.. _Pydocstyle: http://www.pydocstyle.org/

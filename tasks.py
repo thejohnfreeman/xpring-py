@@ -20,12 +20,16 @@ def proto(c):
 
     src_dir = 'xpring-common-protocol-buffers/proto'
     dst_dir = 'xpring/proto'
+    # Doctest imports each module independently, with no parent package,
+    # which breaks relative imports. Thus, we must use absolute imports.
+    # package = '.'
+    package = 'xpring.proto'
 
     Path(dst_dir).mkdir(exist_ok=True)
     c.run(
         f'python -m grpc_tools.protoc --proto_path={src_dir} --python_out={dst_dir} --grpc_python_out={dst_dir} {src_dir}/*.proto'
     )
-    c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
+    c.run(f"sed -i -E 's/^import.*_pb2/from {package} \\0/' {dst_dir}/*.py")
 
 
 @task
@@ -41,7 +45,7 @@ def lint(c):
 def test(c):
     package_name = get_package_name()
     c.run(
-        f'pytest --cov={package_name} --doctest-modules --ignore=docs --ignore=tasks.py',
+        f'pytest --cov={package_name} --ignore=docs --ignore=tasks.py --doctest-modules',
         echo=True,
         pty=pty
     )
