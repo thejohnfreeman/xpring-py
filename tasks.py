@@ -27,9 +27,14 @@ def proto(c):
 
     Path(dst_dir).mkdir(exist_ok=True)
     c.run(
-        f'python -m grpc_tools.protoc --proto_path={src_dir} --python_out={dst_dir} --grpc_python_out={dst_dir} {src_dir}/*.proto'
+        f'python -m grpc_tools.protoc --proto_path={src_dir} '
+        f'--python_out={dst_dir} '
+        f'--grpc_python_out={dst_dir} '
+        f'--mypy_out=quiet:{dst_dir} '
+        f'{src_dir}/*.proto'
     )
-    c.run(f"sed -i -E 's/^import.*_pb2/from {package} \\0/' {dst_dir}/*.py")
+    c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
+    c.run(f"sed -i -E 's/^from\s+(\S+_pb2)/from .\\1/' {dst_dir}/*.pyi")
 
 
 @task
