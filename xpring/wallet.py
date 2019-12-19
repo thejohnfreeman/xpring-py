@@ -26,5 +26,5 @@ class Wallet:
     def sign(self, message: bytes) -> bytes:
         return self.key_pair.sign(message)
 
-    def verify(self, message: bytes, signature: bytes) -> bool:
+    def verify(self, message: bytes, signature: bytes) -> bytes:
         return self.key_pair.verify(message, signature)

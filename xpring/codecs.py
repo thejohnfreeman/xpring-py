@@ -61,7 +61,7 @@ class Codec:
 
     def decode_seed(
         self, encoded: str, known_ciphers: t.Iterable[Cipher] = KNOWN_CIPHERS
-    ) -> (bytes, Cipher):
+    ) -> t.Tuple[bytes, Cipher]:
         bites = self.decode_with_checksum(encoded)
         for cipher in known_ciphers:
             if bites.startswith(cipher.SEED_PREFIX):

@@ -38,10 +38,20 @@ def proto(c):
 
 
 @task
+def mypy(c):
+    package_name = get_package_name()
+    c.run(
+        f'mypy {package_name} tests',
+        env={'MYPYPATH': 'stubs'},
+        echo=True,
+        pty=pty
+    )
+
+
+@task(pre=[mypy])
 def lint(c):
     package_name = get_package_name()
     nproc = multiprocessing.cpu_count()
-    c.run(f'mypy {package_name} tests', echo=True, pty=pty)
     c.run(f'pylint --jobs {nproc} {package_name} tests', echo=True, pty=pty)
     c.run(f'pydocstyle {package_name} tests', echo=True, pty=pty)
 

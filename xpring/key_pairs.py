@@ -33,5 +33,5 @@ class KeyPair:
     def sign(self, message: bytes) -> bytes:
         return self.cipher.sign(message, self.private_key)
 
-    def verify(self, message: bytes, signature: bytes) -> bool:
+    def verify(self, message: bytes, signature: bytes) -> bytes:
         return self.cipher.verify(message, signature, self.public_key)
