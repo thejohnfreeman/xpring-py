@@ -1,6 +1,6 @@
 import pytest
 
-from xpring.key_pairs import KeyPair
+from xpring.key_pair import KeyPair
 
 
 def test_ed25519_key_pair():

@@ -1,9 +1,7 @@
 import pytest
 
-import xpring.codecs as codecs
+from xpring.codec import DEFAULT_CODEC as codec
 from xpring.algorithms import ed25519, secp256k1
-
-codec = codecs.DEFAULT_CODEC
 
 ED25519_EXAMPLES = [
     # https://github.com/ripple/ripple-address-codec/blob/master/src/xrp-codec.test.ts#L74-L102

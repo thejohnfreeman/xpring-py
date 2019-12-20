@@ -74,7 +74,7 @@ class Codec:
         for algorithm in algorithms:
             if bites.startswith(algorithm.SEED_PREFIX):
                 return (bites[len(algorithm.SEED_PREFIX):], algorithm)
-        raise ValueError('unknown encoding')
+        raise ValueError('unknown signing algorithm')
 
     def decode_address(self, encoded: str) -> bytes:
         bites = self.decode_with_checksum(encoded)

@@ -1,4 +1,4 @@
-from xpring.key_pairs import KeyPair
+from xpring.key_pair import KeyPair
 
 
 class Wallet:
