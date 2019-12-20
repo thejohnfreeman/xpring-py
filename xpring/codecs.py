@@ -36,6 +36,12 @@ class Codec:
     ) -> str:
         if len(seed) != 16:
             raise ValueError('seed must have exactly 16 bytes of entropy')
+        # Once ed25519 was added, the team wanted a way to differentiate seeds
+        # used with different signing algorithms. The seeds for both
+        # secp256k1 and ed25519 are arrays of 16 bytes, and thus could be
+        # encoded exactly the same way. It was decided to use a different
+        # prefix for ed25519, which yields encodings that always start with
+        # "sEd".
         return self.encode_with_checksum(algorithm.SEED_PREFIX + seed)
 
     def encode_address(self, address: bytes) -> str:
