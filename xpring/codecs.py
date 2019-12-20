@@ -3,9 +3,8 @@ import math
 import typing as t
 
 from xpring import hashes
-from xpring.ciphers import Cipher, ed25519, KNOWN_CIPHERS
+from xpring.algorithms import ed25519, SigningAlgorithm, SIGNING_ALGORITHMS
 
-SEED_PREFIX = b'\x21'
 ADDRESS_PREFIX = b'\x00'
 
 
@@ -32,10 +31,12 @@ class Codec:
         check = self.checksum(bites)
         return self.encode(bites + check)
 
-    def encode_seed(self, seed: bytes, cipher: Cipher = ed25519) -> str:
+    def encode_seed(
+        self, seed: bytes, algorithm: SigningAlgorithm = ed25519
+    ) -> str:
         if len(seed) != 16:
             raise ValueError('seed must have exactly 16 bytes of entropy')
-        return self.encode_with_checksum(cipher.SEED_PREFIX + seed)
+        return self.encode_with_checksum(algorithm.SEED_PREFIX + seed)
 
     def encode_address(self, address: bytes) -> str:
         return 'r' + self.encode_with_checksum(ADDRESS_PREFIX + address)
@@ -59,12 +60,14 @@ class Codec:
         return bites
 
     def decode_seed(
-        self, encoded: str, known_ciphers: t.Iterable[Cipher] = KNOWN_CIPHERS
-    ) -> t.Tuple[bytes, Cipher]:
+        self,
+        encoded: str,
+        algorithms: t.Iterable[SigningAlgorithm] = SIGNING_ALGORITHMS
+    ) -> t.Tuple[bytes, SigningAlgorithm]:
         bites = self.decode_with_checksum(encoded)
-        for cipher in known_ciphers:
-            if bites.startswith(cipher.SEED_PREFIX):
-                return (bites[len(cipher.SEED_PREFIX):], cipher)
+        for algorithm in algorithms:
+            if bites.startswith(algorithm.SEED_PREFIX):
+                return (bites[len(algorithm.SEED_PREFIX):], algorithm)
         raise ValueError('unknown encoding')
 
     def decode_address(self, encoded: str) -> bytes:

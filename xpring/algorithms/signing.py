@@ -3,7 +3,7 @@ import typing_extensions as tex
 import xpring.key as xk
 
 
-class Cipher(tex.Protocol):
+class SigningAlgorithm(tex.Protocol):
     SEED_PREFIX: bytes
 
     def derive_key_pair(self, seed: bytes) -> xk.KeyPair:

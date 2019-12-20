@@ -1,7 +1,7 @@
 import pytest
 
 import xpring.codecs as codecs
-from xpring.ciphers import ed25519, secp256k1
+from xpring.algorithms import ed25519, secp256k1
 
 codec = codecs.DEFAULT_CODEC
 
@@ -26,8 +26,8 @@ def test_encode_ed25519_seed(hex, encoded):
 
 @pytest.mark.parametrize('hex,encoded', ED25519_EXAMPLES)
 def test_decode_ed25519_seed(hex, encoded):
-    seed, cipher = codec.decode_seed(encoded)
-    assert cipher == ed25519
+    seed, algorithm = codec.decode_seed(encoded)
+    assert algorithm == ed25519
     assert seed.hex().upper() == hex
 
 
@@ -38,8 +38,8 @@ def test_encode_secp256k1_seed(hex, encoded):
 
 @pytest.mark.parametrize('hex,encoded', SECP256K1_EXAMPLES)
 def test_decode_secp256k1_seed(hex, encoded):
-    seed, cipher = codec.decode_seed(encoded)
-    assert cipher == secp256k1
+    seed, algorithm = codec.decode_seed(encoded)
+    assert algorithm == secp256k1
     assert seed.hex().upper() == hex
 
 
