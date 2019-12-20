@@ -5,6 +5,7 @@ import typing as t
 from xpring import hashes
 from xpring.ciphers import Cipher, ed25519, KNOWN_CIPHERS
 
+SEED_PREFIX = b'\x21'
 ADDRESS_PREFIX = b'\x00'
 
 
@@ -31,15 +32,13 @@ class Codec:
         check = self.checksum(bites)
         return self.encode(bites + check)
 
-    def encode_seed(self, entropy: bytes, cipher: Cipher = ed25519) -> str:
-        if len(entropy) != 16:
+    def encode_seed(self, seed: bytes, cipher: Cipher = ed25519) -> str:
+        if len(seed) != 16:
             raise ValueError('seed must have exactly 16 bytes of entropy')
-        bites_with_prefix = cipher.SEED_PREFIX + entropy
-        return self.encode_with_checksum(bites_with_prefix)
+        return self.encode_with_checksum(cipher.SEED_PREFIX + seed)
 
     def encode_address(self, address: bytes) -> str:
-        bites_with_prefix = ADDRESS_PREFIX + address
-        return 'r' + self.encode_with_checksum(bites_with_prefix)
+        return 'r' + self.encode_with_checksum(ADDRESS_PREFIX + address)
 
     def decode(self, encoded: str) -> bytes:
         i = 0

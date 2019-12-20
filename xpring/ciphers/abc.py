@@ -1,15 +1,12 @@
-import typing as t
 import typing_extensions as tex
 
 import xpring.key as xk
-
-KeyPair = t.Tuple[xk.Key, xk.Key]
 
 
 class Cipher(tex.Protocol):
     SEED_PREFIX: bytes
 
-    def derive_key_pair(self, seed: bytes) -> KeyPair:
+    def derive_key_pair(self, seed: bytes) -> xk.KeyPair:
         ...
 
     def sign(self, message: bytes, private_key: xk.Key) -> bytes:

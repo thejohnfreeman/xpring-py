@@ -6,6 +6,7 @@ from xpring.ciphers import ed25519, secp256k1
 codec = codecs.DEFAULT_CODEC
 
 ED25519_EXAMPLES = [
+    # https://github.com/ripple/ripple-address-codec/blob/master/src/xrp-codec.test.ts#L74-L102
     ('4C3A1D213FBDFB14C7C28D609469B341', 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'),
     ('00000000000000000000000000000000', 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE'),
     ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG')

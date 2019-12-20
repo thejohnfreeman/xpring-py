@@ -3,16 +3,14 @@ import typing as t
 import nacl.encoding
 import nacl.signing
 
-from xpring import hashes
-import xpring.key as xk
-import xpring.ciphers.abc as xca
+from xpring import hashes, key as xk
 
 SEED_PREFIX = b'\x01\xE1\x4B'
 
 KEY_PREFIX = 'ED'
 
 
-def derive_key_pair(entropy: bytes) -> xca.KeyPair:
+def derive_key_pair(entropy: bytes) -> xk.KeyPair:
     private_key = hashes.sha512half(entropy)
     public_key = nacl.signing.SigningKey(private_key).verify_key._key[:32]  # pylint: disable=protected-access
     return (xk.Key(public_key, KEY_PREFIX), xk.Key(private_key, KEY_PREFIX))
