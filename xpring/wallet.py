@@ -1,4 +1,7 @@
 from xpring.key_pair import KeyPair
+from xpring.types import (
+    Address, EncodedSeed, Seed, PrivateKey, PublicKey, Signature
+)
 
 
 class Wallet:
@@ -7,24 +10,18 @@ class Wallet:
         self.key_pair = key_pair
 
     @classmethod
-    def from_seed(cls, seed):
-        key_pair = KeyPair.from_seed(seed)
+    def from_seed(cls, encoded_seed: EncodedSeed):
+        key_pair = KeyPair.from_encoded_seed(encoded_seed)
         return cls(key_pair)
 
     @property
-    def address(self):
+    def address(self) -> Address:
         return self.key_pair.address
 
     @property
-    def public_key(self):
+    def public_key(self) -> PublicKey:
         return self.key_pair.public_key
 
     @property
-    def private_key(self):
+    def private_key(self) -> PrivateKey:
         return self.key_pair.private_key
-
-    def sign(self, message: bytes) -> bytes:
-        return self.key_pair.sign(message)
-
-    def verify(self, message: bytes, signature: bytes) -> bytes:
-        return self.key_pair.verify(message, signature)
