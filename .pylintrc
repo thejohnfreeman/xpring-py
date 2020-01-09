@@ -12,3 +12,6 @@ disable = fixme,redefined-outer-name
 min-public-methods = 0
 # URLs often break the line width limit.
 ignore-long-lines = https?://
+
+[MASTER]
+ignore = xpring/proto
