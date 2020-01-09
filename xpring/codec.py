@@ -1,5 +1,4 @@
 import enum
-from itertools import takewhile
 import math
 import typing as t
 
@@ -8,12 +7,6 @@ from xpring.algorithms import ed25519, SigningAlgorithm, SIGNING_ALGORITHMS
 from xpring.types import AccountId, Address, EncodedSeed, PublicKey, Seed
 
 ADDRESS_PREFIX = b'\x00'
-
-
-def ilen(iterator):
-    # https://stackoverflow.com/a/3345797/618906
-    # Iterators do not define `__len__`, even though they could.
-    return sum(1 for _ in iterator)
 
 
 class Codec:
@@ -28,8 +21,10 @@ class Codec:
         self.checksum = checksum
 
     def encode(self, bites: bytes) -> str:
-        zeroes = ilen(takewhile(lambda b: b == 0, bites))
-        i = int.from_bytes(bites[zeroes:], 'big')
+        zeroes = len(bites)
+        sigfig = bites.lstrip(b'\0')
+        zeroes -= len(sigfig)
+        i = int.from_bytes(sigfig, 'big')
         s = ''
         while i:
             i, digit = divmod(i, self.base)
@@ -53,8 +48,9 @@ class Codec:
         )
 
     def decode(self, string: str) -> bytes:
-        zeroes = ilen(takewhile(lambda c: c == self.alphabet[0], string))
-        sigfig = string[zeroes:]
+        zeroes = len(string)
+        sigfig = string.lstrip(self.alphabet[0])
+        zeroes -= len(sigfig)
         sum = 0
         for c in sigfig:
             sum = sum * self.base + self.alphabet.index(c)
