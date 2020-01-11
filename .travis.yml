@@ -5,6 +5,7 @@ install:
   - poetry install
 
 script:
+  - poetry run invoke proto
   - poetry run invoke lint
   - poetry run invoke test
 
