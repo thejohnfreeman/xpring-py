@@ -72,22 +72,25 @@ def test_decode_secp256k1_seed(seed_hex, encoded_seed):
     assert seed.hex().upper() == seed_hex
 
 
-ADDRESS_EXAMPLES = [
-    # https://github.com/ripple/ripple-address-codec/blob/4f87237b5429a044de2c8fa369d1c45ed3210538/src/xrp-codec.test.ts#L30-L31
-    (
-        'BA8E78626EE42C41B46D46C3048DF3A1C3C87072',
-        'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
-    ),
-]
+ADDRESS_EXAMPLES = (
+    'account_id_hex,address',
+    [
+        # https://github.com/ripple/ripple-address-codec/blob/4f87237b5429a044de2c8fa369d1c45ed3210538/src/xrp-codec.test.ts#L30-L31
+        (
+            'BA8E78626EE42C41B46D46C3048DF3A1C3C87072',
+            'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
+        ),
+    ]
+)
 
 
-@pytest.mark.parametrize('account_id_hex,address', ADDRESS_EXAMPLES)
+@pytest.mark.parametrize(*ADDRESS_EXAMPLES)
 def test_encode_address(account_id_hex, address):
     account_id = bytes.fromhex(account_id_hex)
     assert codec.encode_address(account_id) == address
 
 
-@pytest.mark.parametrize('account_id_hex,address', ADDRESS_EXAMPLES)
+@pytest.mark.parametrize(*ADDRESS_EXAMPLES)
 def test_decode_address(account_id_hex, address):
     account_id = bytes.fromhex(account_id_hex)
     assert codec.decode_address(address) == account_id
