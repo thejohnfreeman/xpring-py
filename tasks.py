@@ -33,6 +33,8 @@ def proto(c):
         f'--mypy_out=quiet:{dst_dir} '
         f'{src_dir}/*.proto'
     )
+    # We can assume Python is in the environment, but not sed.
+    # TODO: Look for a Python replacement for sed.
     c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
     c.run(f"sed -i -E 's/^from\s+(\S+_pb2)/from .\\1/' {dst_dir}/*.pyi")
 

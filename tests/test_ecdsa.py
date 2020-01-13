@@ -5,6 +5,12 @@ from xpring import hashes
 
 
 def encode_der(r: int, s: int) -> str:
+    # If r and s are 32 bytes, the DER encoding is:
+    # 1 byte code for SEQUENCE (0x30) +
+    # 1 byte length of sequence (0x01 + 0x01 + 0x20 + 0x01 + 0x01 + 0x20 = 0x44) +
+    # 1 byte code for INTEGER (0x02) + 1 byte for length of r (0x20) + r
+    # 1 byte code for INTEGER (0x02) + 1 byte for length of s (0x20) + s
+    # https://docs.microsoft.com/en-us/windows/win32/seccertenroll/about-introduction-to-asn-1-syntax-and-encoding
     r = r.to_bytes(32, byteorder='big').hex()
     s = s.to_bytes(32, byteorder='big').hex()
     return '3044' + '0220' + r + '0220' + s
