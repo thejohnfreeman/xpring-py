@@ -21,16 +21,19 @@ def encode_der(r: int, s: int) -> str:
     return '3044' + '0220' + r + '0220' + s
 
 
+private_key = int.from_bytes(private_key_bytes, byteorder='big')
+
+
 def test_determinism():
     r1, s1 = ecdsa.sign(
         message_hash_bytes.hex(),
-        int.from_bytes(private_key_bytes, byteorder='big'),
+        private_key,
         curve=curve.secp256k1,
         prehashed=True
     )
     r2, s2 = ecdsa.sign(
         message_hash_bytes.hex(),
-        int.from_bytes(private_key_bytes, byteorder='big'),
+        private_key,
         curve=curve.secp256k1,
         prehashed=True
     )
@@ -41,7 +44,7 @@ def test_determinism():
 def test_sign():
     r, s = ecdsa.sign(
         message_hash_bytes.hex(),
-        int.from_bytes(private_key_bytes, byteorder='big'),
+        private_key,
         curve=curve.secp256k1,
         prehashed=True
     )

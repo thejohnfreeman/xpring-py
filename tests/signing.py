@@ -7,6 +7,7 @@ from xpring import hashes
 private_key_bytes = bytes.fromhex(
     'd78b9735c3f26501c7337b8a5727fd53a6efdbc6aa55984f098488561f985e23'
 )
+assert len(private_key_bytes) == 32
 message_bytes = b'test message'
 message_hash_bytes = hashes.sha512half(message_bytes)
 assert message_hash_bytes.hex(
