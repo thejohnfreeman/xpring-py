@@ -2,19 +2,20 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec, utils
 from cryptography.utils import register_interface
+import pytest
 
 from .fixtures import (
-    expected_signature_hex,
-    message_bytes,
-    message_hash_bytes,
     IdentityHash,
-    private_key_bytes,
+    SECP256K1_SIGNATURE_EXAMPLES,
 )
 
 register_interface(hashes.HashAlgorithm)(IdentityHash)
 
 
-def test_key():
+@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+def test_key(
+    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+):
     private_key = ec.derive_private_key(
         int.from_bytes(private_key_bytes, byteorder='big'),
         ec.SECP256K1(),
@@ -26,7 +27,7 @@ def test_key():
     assert private_key_hex == private_key_bytes.hex()
 
 
-def sign(message_hash_bytes, private_key_bytes):
+def sign(message_hash_bytes: bytes, private_key_bytes: bytes) -> bytes:
     private_key = ec.derive_private_key(
         int.from_bytes(private_key_bytes, byteorder='big'),
         ec.SECP256K1(),
@@ -36,6 +37,8 @@ def sign(message_hash_bytes, private_key_bytes):
     return private_key.sign(message_hash_bytes, ec.ECDSA(prehashed))
 
 
-def test_sign():
-    signature = sign(message_hash_bytes, private_key_bytes)
-    assert signature.hex() == expected_signature_hex
+@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+def test_sign(
+    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+):
+    assert sign(message_hash_bytes, private_key_bytes) == signature_bytes

@@ -33,39 +33,43 @@ def test_decode_with_checksum(bites, encoded_bites):
 
 
 # https://github.com/ripple/ripple-address-codec/blob/4f87237b5429a044de2c8fa369d1c45ed3210538/src/xrp-codec.test.ts#L74-L102
-ED25519_EXAMPLES = [
-    ('4C3A1D213FBDFB14C7C28D609469B341', 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'),
-    ('00000000000000000000000000000000', 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE'),
-    ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG')
-]
+ED25519_SEED_EXAMPLES = (
+    'seed_hex,encoded_seed', (
+        ('4C3A1D213FBDFB14C7C28D609469B341', 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'),
+        ('00000000000000000000000000000000', 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE'),
+        ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG'),
+    )
+)
 
-SECP256K1_EXAMPLES = [
-    ('CF2DE378FBDD7E2EE87D486DFB5A7BFF', 'sn259rEFXrQrWyx3Q7XneWcwV6dfL'),
-    ('00000000000000000000000000000000', 'sp6JS7f14BuwFY8Mw6bTtLKWauoUs'),
-    ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'saGwBRReqUNKuWNLpUAq8i8NkXEPN')
-]
+SECP256K1_SEED_EXAMPLES = (
+    'seed_hex,encoded_seed', (
+        ('CF2DE378FBDD7E2EE87D486DFB5A7BFF', 'sn259rEFXrQrWyx3Q7XneWcwV6dfL'),
+        ('00000000000000000000000000000000', 'sp6JS7f14BuwFY8Mw6bTtLKWauoUs'),
+        ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'saGwBRReqUNKuWNLpUAq8i8NkXEPN'),
+    )
+)
 
 
-@pytest.mark.parametrize('seed_hex,encoded_seed', ED25519_EXAMPLES)
+@pytest.mark.parametrize(*ED25519_SEED_EXAMPLES)
 def test_encode_ed25519_seed(seed_hex, encoded_seed):
     seed = bytes.fromhex(seed_hex)
     assert codec.encode_seed(seed, ed25519) == encoded_seed
 
 
-@pytest.mark.parametrize('seed_hex,encoded_seed', ED25519_EXAMPLES)
+@pytest.mark.parametrize(*ED25519_SEED_EXAMPLES)
 def test_decode_ed25519_seed(seed_hex, encoded_seed):
     seed, algorithm = codec.decode_seed(encoded_seed)
     assert algorithm == ed25519
     assert seed.hex().upper() == seed_hex
 
 
-@pytest.mark.parametrize('seed_hex,encoded_seed', SECP256K1_EXAMPLES)
+@pytest.mark.parametrize(*SECP256K1_SEED_EXAMPLES)
 def test_encode_secp256k1_seed(seed_hex, encoded_seed):
     seed = bytes.fromhex(seed_hex)
     assert codec.encode_seed(seed, secp256k1) == encoded_seed
 
 
-@pytest.mark.parametrize('seed_hex,encoded_seed', SECP256K1_EXAMPLES)
+@pytest.mark.parametrize(*SECP256K1_SEED_EXAMPLES)
 def test_decode_secp256k1_seed(seed_hex, encoded_seed):
     seed, algorithm = codec.decode_seed(encoded_seed)
     assert algorithm == secp256k1

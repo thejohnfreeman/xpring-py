@@ -3,13 +3,13 @@ import pytest
 from fastecdsa import curve, ecdsa
 
 from .fixtures import (
-    expected_signature_hex,
-    message_hash_bytes,
-    private_key_bytes,
+    SECP256K1_SIGNATURE_EXAMPLES,
 )
 
 
 def encode_der(r: int, s: int) -> bytes:
+    assert r < (1 << (32 * 8))
+    assert s < (1 << (32 * 8))
     # If r and s are 32-byte integers, the DER encoding is:
     # 1-byte code for SEQUENCE (0x30) +
     # 1-byte length of sequence (0x01 + 0x01 + 0x20 + 0x01 + 0x01 + 0x20 = 0x44) +
@@ -21,10 +21,11 @@ def encode_der(r: int, s: int) -> bytes:
     return b'\x30\x44' + b'\x02\x20' + r_bytes + b'\x02\x20' + s_bytes
 
 
-private_key = int.from_bytes(private_key_bytes, byteorder='big')
-
-
-def test_determinism():
+@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+def test_determinism(
+    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+):
+    private_key = int.from_bytes(private_key_bytes, byteorder='big')
     r1, s1 = ecdsa.sign(
         message_hash_bytes.hex(),
         private_key,
@@ -52,6 +53,8 @@ def sign(message_hash_bytes, private_key_bytes):
     return encode_der(r, s)
 
 
-def test_sign():
-    signature = sign(message_hash_bytes, private_key_bytes)
-    assert signature.hex() == expected_signature_hex
+@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+def test_sign(
+    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+):
+    assert sign(message_hash_bytes, private_key_bytes) == signature_bytes

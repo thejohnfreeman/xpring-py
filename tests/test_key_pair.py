@@ -25,7 +25,7 @@ class TestCase:
 
 # https://github.com/ripple/ripple-keypairs/blob/6f606a885ae5cb2e897c796c98171938aba19903/test/fixtures/api.json#L12-L21
 TEST_CASES = (
-    'test_case', [
+    'test_case', (
         TestCase(
             'sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r',
             'B4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3',
@@ -40,7 +40,7 @@ TEST_CASES = (
             'rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1',
             '30440220583A91C95E54E6A651C47BEC22744E0B101E2C4060E7B08F6341657DAD9BC3EE02207D1489C7395DB0188D3A56A977ECBA54B36FA9371B40319655B1B4429E33EF2D',
         ),
-    ]
+    )
 )
 
 MESSAGE = b'test message'
