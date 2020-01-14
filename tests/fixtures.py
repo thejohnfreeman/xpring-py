@@ -53,5 +53,5 @@ class NoHash:
     def hexdigest(self) -> str:
         return self.digest().hex()
 
-    def copy(self) -> 'Sha512Half':
+    def copy(self) -> 'NoHash':
         return self.__class__(self.data)

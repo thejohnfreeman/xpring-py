@@ -3,7 +3,7 @@ from ecdsa import curves, SigningKey
 # (modulo the order) if above order/2.
 from ecdsa.util import sigencode_der, sigencode_der_canonize
 
-from .signing import (
+from .fixtures import (
     expected_signature_hex,
     message_bytes,
     message_hash_bytes,
@@ -22,8 +22,15 @@ def test_determinism():
     assert signature1_hex == signature2_hex
 
 
-def test_sign():
-    signature = private_key.sign_deterministic(
+def sign(message_hash_bytes, private_key_bytes):
+    private_key = SigningKey.from_string(
+        private_key_bytes, curve=curves.SECP256k1, hashfunc=NoHash
+    )
+    return private_key.sign_deterministic(
         message_hash_bytes, hashfunc=NoHash, sigencode=sigencode_der
     )
+
+
+def test_sign():
+    signature = sign(message_hash_bytes, private_key_bytes)
     assert signature.hex() == expected_signature_hex
