@@ -7,11 +7,11 @@ from .fixtures import (
     expected_signature_hex,
     message_bytes,
     message_hash_bytes,
-    NoHash,
+    IdentityHash,
     private_key_bytes,
 )
 
-register_interface(hashes.HashAlgorithm)(NoHash)
+register_interface(hashes.HashAlgorithm)(IdentityHash)
 
 
 def test_key():
@@ -32,7 +32,7 @@ def sign(message_hash_bytes, private_key_bytes):
         ec.SECP256K1(),
         default_backend(),
     )
-    prehashed = utils.Prehashed(NoHash())
+    prehashed = utils.Prehashed(IdentityHash())
     return private_key.sign(message_hash_bytes, ec.ECDSA(prehashed))
 
 

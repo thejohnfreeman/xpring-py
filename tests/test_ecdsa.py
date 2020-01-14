@@ -7,12 +7,12 @@ from .fixtures import (
     expected_signature_hex,
     message_bytes,
     message_hash_bytes,
-    NoHash,
+    IdentityHash,
     private_key_bytes,
 )
 
 private_key = SigningKey.from_string(
-    private_key_bytes, curve=curves.SECP256k1, hashfunc=NoHash
+    private_key_bytes, curve=curves.SECP256k1, hashfunc=IdentityHash
 )
 
 
@@ -24,10 +24,10 @@ def test_determinism():
 
 def sign(message_hash_bytes, private_key_bytes):
     private_key = SigningKey.from_string(
-        private_key_bytes, curve=curves.SECP256k1, hashfunc=NoHash
+        private_key_bytes, curve=curves.SECP256k1, hashfunc=IdentityHash
     )
     return private_key.sign_deterministic(
-        message_hash_bytes, hashfunc=NoHash, sigencode=sigencode_der
+        message_hash_bytes, hashfunc=IdentityHash, sigencode=sigencode_der
     )
 
 

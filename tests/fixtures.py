@@ -36,10 +36,10 @@ class Sha512Half:
         return self.__class__(self.data)
 
 
-class NoHash:
+class IdentityHash:
     digest_size = 32
     block_size = 32
-    name = 'none'
+    name = 'identity'
 
     def __init__(self, data: bytes = b'') -> None:
         self.data = bytes(data)
@@ -53,5 +53,5 @@ class NoHash:
     def hexdigest(self) -> str:
         return self.digest().hex()
 
-    def copy(self) -> 'NoHash':
+    def copy(self) -> 'IdentityHash':
         return self.__class__(self.data)
