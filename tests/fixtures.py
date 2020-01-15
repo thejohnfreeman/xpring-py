@@ -3,10 +3,6 @@ import typing as t
 
 from xpring import hashes
 
-PrivateKeyHex = t.NewType('PrivateKeyHex', str)
-MessageHashHex = t.NewType('MessageHashHex', str)
-SignatureHex = t.NewType('SignatureHex', str)
-
 SECP256K1_SIGNATURE_EXAMPLES = (
     'private_key_hex,message_hash_hex,signature_hex',
     [
