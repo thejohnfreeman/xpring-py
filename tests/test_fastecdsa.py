@@ -1,9 +1,13 @@
-import pytest
+import typing as t
 
 from fastecdsa import curve, ecdsa
+import pytest
 
 from .fixtures import (
+    MessageHashHex,
+    PrivateKeyHex,
     SECP256K1_SIGNATURE_EXAMPLES,
+    SignatureHex,
 )
 
 
@@ -21,40 +25,42 @@ def encode_der(r: int, s: int) -> bytes:
     return b'\x30\x44' + b'\x02\x20' + r_bytes + b'\x02\x20' + s_bytes
 
 
+PrivateKey = t.NewType('PrivateKey', int)
+
+
+def make_private_key(private_key_hex: PrivateKeyHex) -> PrivateKey:
+    return t.cast(
+        PrivateKey,
+        int.from_bytes(bytes.fromhex(private_key_hex), byteorder='big'),
+    )
+
+
+def sign(
+    private_key: PrivateKey, message_hash_hex: MessageHashHex
+) -> SignatureHex:
+    r, s = ecdsa.sign(
+        message_hash_hex, private_key, curve=curve.secp256k1, prehashed=True
+    )
+    return t.cast(SignatureHex, encode_der(r, s).hex())
+
+
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 def test_determinism(
-    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+    private_key_hex: PrivateKeyHex,
+    message_hash_hex: MessageHashHex,
+    signature_hex: SignatureHex,
 ):
-    private_key = int.from_bytes(private_key_bytes, byteorder='big')
-    r1, s1 = ecdsa.sign(
-        message_hash_bytes.hex(),
-        private_key,
-        curve=curve.secp256k1,
-        prehashed=True
-    )
-    r2, s2 = ecdsa.sign(
-        message_hash_bytes.hex(),
-        private_key,
-        curve=curve.secp256k1,
-        prehashed=True
-    )
-    assert r1 == r2
-    assert s1 == s2
-
-
-def sign(message_hash_bytes, private_key_bytes):
-    private_key = int.from_bytes(private_key_bytes, byteorder='big')
-    r, s = ecdsa.sign(
-        message_hash_bytes.hex(),
-        private_key,
-        curve=curve.secp256k1,
-        prehashed=True
-    )
-    return encode_der(r, s)
+    private_key = make_private_key(private_key_hex)
+    signature1_hex = sign(private_key, message_hash_hex)
+    signature2_hex = sign(private_key, message_hash_hex)
+    assert signature1_hex == signature2_hex
 
 
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 def test_sign(
-    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+    private_key_hex: PrivateKeyHex,
+    message_hash_hex: MessageHashHex,
+    signature_hex: SignatureHex,
 ):
-    assert sign(message_hash_bytes, private_key_bytes) == signature_bytes
+    private_key = make_private_key(private_key_hex)
+    assert sign(private_key, message_hash_hex) == signature_hex

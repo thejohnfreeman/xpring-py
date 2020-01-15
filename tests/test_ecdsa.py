@@ -3,37 +3,55 @@ from ecdsa import curves, SigningKey
 # (modulo the order) if above order/2.
 from ecdsa.util import sigencode_der, sigencode_der_canonize
 import pytest
+import typing as t
 
 from .fixtures import (
     IdentityHash,
+    MessageHashHex,
+    PrivateKeyHex,
     SECP256K1_SIGNATURE_EXAMPLES,
+    SignatureHex,
 )
+
+# https://github.com/python/mypy/issues/7866
+PrivateKey = t.Union[SigningKey]
+
+
+def make_private_key(private_key_hex: PrivateKeyHex) -> PrivateKey:
+    return SigningKey.from_string(
+        bytes.fromhex(private_key_hex),
+        curve=curves.SECP256k1,
+        hashfunc=IdentityHash,
+    )
+
+
+def sign(
+    private_key: PrivateKey, message_hash_hex: MessageHashHex
+) -> SignatureHex:
+    return private_key.sign_deterministic(
+        bytes.fromhex(message_hash_hex),
+        hashfunc=IdentityHash,
+        sigencode=sigencode_der,
+    ).hex()
 
 
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 def test_determinism(
-    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+    private_key_hex: PrivateKeyHex,
+    message_hash_hex: MessageHashHex,
+    signature_hex: SignatureHex,
 ):
-    private_key = SigningKey.from_string(
-        private_key_bytes, curve=curves.SECP256k1, hashfunc=IdentityHash
-    )
-    message_bytes = b'message'
-    signature1_hex = private_key.sign_deterministic(message_bytes).hex()
-    signature2_hex = private_key.sign_deterministic(message_bytes).hex()
+    private_key = make_private_key(private_key_hex)
+    signature1_hex = sign(private_key, message_hash_hex)
+    signature2_hex = sign(private_key, message_hash_hex)
     assert signature1_hex == signature2_hex
-
-
-def sign(message_hash_bytes, private_key_bytes):
-    private_key = SigningKey.from_string(
-        private_key_bytes, curve=curves.SECP256k1, hashfunc=IdentityHash
-    )
-    return private_key.sign_deterministic(
-        message_hash_bytes, hashfunc=IdentityHash, sigencode=sigencode_der
-    )
 
 
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 def test_sign(
-    private_key_bytes: bytes, message_hash_bytes: bytes, signature_bytes: bytes
+    private_key_hex: PrivateKeyHex,
+    message_hash_hex: MessageHashHex,
+    signature_hex: SignatureHex,
 ):
-    assert sign(message_hash_bytes, private_key_bytes) == signature_bytes
+    private_key = make_private_key(private_key_hex)
+    assert sign(private_key, message_hash_hex) == signature_hex
