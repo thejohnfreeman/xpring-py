@@ -16,15 +16,17 @@ from .test_fastecdsa import (
     sign as sign_fastecdsa,
 )
 
-
-@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
-@pytest.mark.parametrize(
+SECP256K1_LIBRARY_EXAMPLES = (
     'make_private_key,sign', (
-        (mpk_cryptography, sign_cryptography),
-        (mpk_ecdsa, sign_ecdsa),
-        (mpk_fastecdsa, sign_fastecdsa),
+        pytest.param(mpk_cryptography, sign_cryptography, id='cryptography'),
+        pytest.param(mpk_ecdsa, sign_ecdsa, id='ecdsa'),
+        pytest.param(mpk_fastecdsa, sign_fastecdsa, id='fastecdsa'),
     )
 )
+
+
+@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize(*SECP256K1_LIBRARY_EXAMPLES)
 def test_determinism(
     private_key_hex: str,
     message_hash_hex: str,
@@ -41,13 +43,7 @@ def test_determinism(
 
 
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
-@pytest.mark.parametrize(
-    'make_private_key,sign', (
-        (mpk_cryptography, sign_cryptography),
-        (mpk_ecdsa, sign_ecdsa),
-        (mpk_fastecdsa, sign_fastecdsa),
-    )
-)
+@pytest.mark.parametrize(*SECP256K1_LIBRARY_EXAMPLES)
 def test_sign(
     private_key_hex: str,
     message_hash_hex: str,
