@@ -42,6 +42,7 @@ def test_determinism(
     assert signature1_hex == signature2_hex
 
 
+@pytest.mark.skip
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 @pytest.mark.parametrize(*SECP256K1_LIBRARY_EXAMPLES)
 def test_sign(
