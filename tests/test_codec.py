@@ -34,7 +34,7 @@ def test_decode_with_checksum(bites, encoded_bites):
 
 # https://github.com/ripple/ripple-address-codec/blob/4f87237b5429a044de2c8fa369d1c45ed3210538/src/xrp-codec.test.ts#L74-L102
 ED25519_SEED_EXAMPLES = (
-    'seed_hex,encoded_seed', (
+    ('seed_hex', 'encoded_seed'), (
         ('4C3A1D213FBDFB14C7C28D609469B341', 'sEdTM1uX8pu2do5XvTnutH6HsouMaM2'),
         ('00000000000000000000000000000000', 'sEdSJHS4oiAdz7w2X2ni1gFiqtbJHqE'),
         ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'sEdV19BLfeQeKdEXyYA4NhjPJe6XBfG'),
@@ -42,7 +42,7 @@ ED25519_SEED_EXAMPLES = (
 )
 
 SECP256K1_SEED_EXAMPLES = (
-    'seed_hex,encoded_seed', (
+    ('seed_hex', 'encoded_seed'), (
         ('CF2DE378FBDD7E2EE87D486DFB5A7BFF', 'sn259rEFXrQrWyx3Q7XneWcwV6dfL'),
         ('00000000000000000000000000000000', 'sp6JS7f14BuwFY8Mw6bTtLKWauoUs'),
         ('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', 'saGwBRReqUNKuWNLpUAq8i8NkXEPN'),
@@ -77,7 +77,7 @@ def test_decode_secp256k1_seed(seed_hex, encoded_seed):
 
 
 ADDRESS_EXAMPLES = (
-    'account_id_hex,address',
+    ('account_id_hex', 'address'),
     [
         # https://github.com/ripple/ripple-address-codec/blob/4f87237b5429a044de2c8fa369d1c45ed3210538/src/xrp-codec.test.ts#L30-L31
         (

@@ -17,7 +17,7 @@ from .test_fastecdsa import (
 )
 
 SECP256K1_LIBRARY_EXAMPLES = (
-    'make_private_key,sign', (
+    ('make_private_key', 'sign'), (
         pytest.param(mpk_cryptography, sign_cryptography, id='cryptography'),
         pytest.param(mpk_ecdsa, sign_ecdsa, id='ecdsa'),
         pytest.param(mpk_fastecdsa, sign_fastecdsa, id='fastecdsa'),

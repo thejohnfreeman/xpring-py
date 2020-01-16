@@ -6,7 +6,7 @@ import pytest
 from xpring import hashes
 
 SECP256K1_SIGNATURE_EXAMPLES = (
-    'private_key_hex,message_hash_hex,signature_hex',
+    ('private_key_hex', 'message_hash_hex', 'signature_hex'),
     [
         # https://github.com/btccom/secp256k1-go/blob/f7178bcde5780809c6f819d62c3e7a37c635e749/secp256k1/sign_vectors.yaml#L3-L5
         pytest.param(
