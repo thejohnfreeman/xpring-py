@@ -1,22 +1,26 @@
 import hashlib
 import typing as t
 
+import pytest
+
 from xpring import hashes
 
 SECP256K1_SIGNATURE_EXAMPLES = (
     'private_key_hex,message_hash_hex,signature_hex',
     [
         # https://github.com/btccom/secp256k1-go/blob/f7178bcde5780809c6f819d62c3e7a37c635e749/secp256k1/sign_vectors.yaml#L3-L5
-        (
+        pytest.param(
             '31a84594060e103f5a63eb742bd46cf5f5900d8406e2726dedfc61c7cf43ebad',
             '9e5755ec2f328cc8635a55415d0e9a09c2b6f2c9b0343c945fbbfe08247a4cbe',
             '30440220132382ca59240c2e14ee7ff61d90fc63276325f4cbe8169fc53ade4a407c2fc802204d86fbe3bde6975dd5a91fdc95ad6544dcdf0dab206f02224ce7e2b151bd82ab',
+            id='31a845',
         ),
         # https://github.com/btccom/secp256k1-go/blob/f7178bcde5780809c6f819d62c3e7a37c635e749/secp256k1/sign_vectors.yaml#L16-L18
-        (
+        pytest.param(
             '39dfc615f2b718397f6903b0c46c47c5687e97d3d2a5e1f2b200f459f7b1219b',
             'dfeb2092955572ce0695aa038f58df5499949e18f58785553c3e83343cd5eb93',
             '30440220692c01edf8aeab271df3ed4e8d57a170f014f8f9d65031aac28b5e1840acfb5602205075f9d1fdbf5079ee052e5f3572d518b3594ef49582899ec44d065f71a55192',
+            id='39dfc6',
         ),
         # https://github.com/ripple/ripple-keypairs/blob/master/test/fixtures/api.json#L2-L11
         # (
