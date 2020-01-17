@@ -22,15 +22,30 @@ def make_signing_key(signing_key_bytes: bytes) -> t.Any:
     )
 
 
-def sign(signing_key: t.Any, message_hash_bytes: bytes) -> bytes:
+def derive_verifying_key(signing_key: t.Any) -> t.Any:
+    return signing_key.public_key()
+
+
+def sign(signing_key: t.Any, message_digest_bytes: bytes) -> bytes:
     prehashed = utils.Prehashed(IdentityHash())
-    return signing_key.sign(message_hash_bytes, ec.ECDSA(prehashed))
+    return signing_key.sign(message_digest_bytes, ec.ECDSA(prehashed))
+
+
+def verify(
+    verifying_key: t.Any, message_digest_bytes: bytes, signature: bytes
+) -> bool:
+    verifying_key.verify(
+        signature,
+        message_digest_bytes,
+        ec.ECDSA(utils.Prehashed(IdentityHash())),
+    )
+    return True
 
 
 @pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
 def test_key(
     signing_key_hex: str,
-    message_hash_hex: str,
+    message_digest_hex: str,
     signature_hex: str,
 ):
     signing_key = make_signing_key(bytes.fromhex(signing_key_hex))
