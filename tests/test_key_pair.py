@@ -1,57 +1,55 @@
 import pytest
 
 from xpring.key_pair import KeyPair
-
-
-class TestCase:
-
-    def __init__(
-        self,
-        encoded_seed: str,
-        private_key: str,
-        public_key: str,
-        address: str,
-    ):
-        self.encoded_seed = encoded_seed
-        self.private_key = bytes.fromhex(private_key)
-        self.public_key = bytes.fromhex(public_key)
-        self.address = address
-
+from xpring.types import Address, EncodedSeed, PrivateKey, PublicKey
 
 # https://github.com/ripple/ripple-keypairs/blob/6f606a885ae5cb2e897c796c98171938aba19903/test/fixtures/api.json#L12-L21
-TEST_CASES = (
-    'test_case', (
-        TestCase(
+KEY_PAIR_EXAMPLES = (
+    ('encoded_seed', 'private_key_hex', 'public_key_hex', 'address'), (
+        (
             'sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r',
-            'B4C4E046826BD26190D09715FC31F4E6A728204EADD112905B08B14B7F15C4F3',
-            'ED01FA53FA5A7E77798F882ECE20B1ABC00BB358A9E55A202D0D0676BD0CE37A63',
+            'b4c4e046826bd26190d09715fc31f4e6a728204eadd112905b08b14b7f15c4f3',
+            'ed01fa53fa5a7e77798f882ece20b1abc00bb358a9e55a202d0d0676bd0ce37a63',
             'rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD',
         ),
-        TestCase(
+        (
             'sp5fghtJtpUorTwvof1NpDXAzNwf5',
-            'D78B9735C3F26501C7337B8A5727FD53A6EFDBC6AA55984F098488561F985E23',
-            '030D58EB48B4420B1F7B9DF55087E0E29FEF0E8468F9A6825B01CA2C361042D435',
+            'd78b9735c3f26501c7337b8a5727fd53a6efdbc6aa55984f098488561f985e23',
+            '030d58eb48b4420b1f7b9df55087e0e29fef0e8468f9a6825b01ca2c361042d435',
             'rU6K7V3Po4snVhBBaU29sesqs2qTQJWDw1',
         ),
     )
 )
 
-MESSAGE = b'test message'
+
+@pytest.mark.parametrize(*KEY_PAIR_EXAMPLES)
+def test_private_key(
+    encoded_seed: EncodedSeed,
+    private_key_hex: str,
+    public_key_hex: str,
+    address: Address,
+):
+    key_pair = KeyPair.from_encoded_seed(encoded_seed)
+    assert key_pair.private_key.hex() == private_key_hex
 
 
-@pytest.mark.parametrize(*TEST_CASES)
-def test_private_key(test_case):
-    key_pair = KeyPair.from_encoded_seed(test_case.encoded_seed)
-    assert key_pair.private_key == test_case.private_key
+@pytest.mark.parametrize(*KEY_PAIR_EXAMPLES)
+def test_public_key(
+    encoded_seed: EncodedSeed,
+    private_key_hex: str,
+    public_key_hex: str,
+    address: Address,
+):
+    key_pair = KeyPair.from_encoded_seed(encoded_seed)
+    assert key_pair.public_key.hex() == public_key_hex
 
 
-@pytest.mark.parametrize(*TEST_CASES)
-def test_public_key(test_case):
-    key_pair = KeyPair.from_encoded_seed(test_case.encoded_seed)
-    assert key_pair.public_key == test_case.public_key
-
-
-@pytest.mark.parametrize(*TEST_CASES)
-def test_address(test_case):
-    key_pair = KeyPair.from_encoded_seed(test_case.encoded_seed)
-    assert key_pair.address == test_case.address
+@pytest.mark.parametrize(*KEY_PAIR_EXAMPLES)
+def test_address(
+    encoded_seed: EncodedSeed,
+    private_key_hex: str,
+    public_key_hex: str,
+    address: Address,
+):
+    key_pair = KeyPair.from_encoded_seed(encoded_seed)
+    assert key_pair.address == address
