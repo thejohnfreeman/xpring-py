@@ -22,6 +22,10 @@ def test_determinism(
     signature_hex: str,
     module: t.Any,
 ):
+    # This package offers no deterministic signing algorithm.
+    if module == test_cryptography:
+        return
+
     signing_key_bytes = bytes.fromhex(signing_key_hex)
     signing_key = module.make_signing_key(signing_key_bytes)
     digest_bytes = bytes.fromhex(message_digest_hex)
