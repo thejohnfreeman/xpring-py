@@ -1,6 +1,6 @@
 import typing as t
 
-from ecdsa import curves, SigningKey
+from ecdsa import curves, SigningKey, VerifyingKey
 # The canonical signature encoding enforces low S values, by negating the value
 # (modulo the order) if above order/2.
 from ecdsa.util import sigdecode_der, sigencode_der_canonize
@@ -16,21 +16,27 @@ def make_signing_key(signing_key_bytes: bytes) -> t.Any:
     )
 
 
-def derive_verifying_key(signing_key: t.Any) -> t.Any:
-    return signing_key.verifying_key
-
-
-def sign(signing_key: t.Any, message_digest_bytes: bytes) -> bytes:
+def sign(signing_key: t.Any, digest_bytes: bytes) -> bytes:
     return signing_key.sign_deterministic(
-        message_digest_bytes,
+        digest_bytes,
         hashfunc=IdentityHash,
         sigencode=sigencode_der_canonize,
     )
 
 
-def verify(
-    verifying_key: t.Any, message_digest_bytes: bytes, signature: bytes
-) -> bool:
+def derive_verifying_key(signing_key: t.Any) -> t.Any:
+    return signing_key.verifying_key
+
+
+def export_verifying_key(verifying_key: t.Any) -> bytes:
+    return verifying_key.to_pem()
+
+
+def import_verifying_key(pem_bytes: bytes) -> t.Any:
+    return VerifyingKey.from_pem(pem_bytes)
+
+
+def verify(verifying_key: t.Any, digest_bytes: bytes, signature: bytes) -> bool:
     return verifying_key.verify(
-        signature, message_digest_bytes, sigdecode=sigdecode_der
+        signature, digest_bytes, hashfunc=IdentityHash, sigdecode=sigdecode_der
     )
