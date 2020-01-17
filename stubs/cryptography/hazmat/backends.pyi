@@ -1,0 +1,6 @@
+class Backend:
+    ...
+
+
+def default_backend() -> Backend:
+    ...

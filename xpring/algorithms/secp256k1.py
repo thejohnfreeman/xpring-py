@@ -61,7 +61,7 @@ def derive_key_pair(seed: Seed) -> t.Tuple[PrivateKey, PublicKey]:
 
 
 def sign(message: bytes, private_key: PrivateKey) -> Signature:
-    return b''
+    return t.cast(Signature, b'')
 
 
 def verify(message: bytes, signature: Signature, public_key: PublicKey) -> bool:

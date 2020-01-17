@@ -29,8 +29,8 @@ def export_verifying_key(verifying_key: t.Any) -> bytes:
     return PEMEncoder.encode_public_key(verifying_key).encode()
 
 
-def import_verifying_key(pem_byes: bytes) -> t.Any:
-    return PEMEncoder.decode_public_key(pem_byes.decode(), curve.secp256k1)
+def import_verifying_key(pem_bytes: bytes) -> t.Any:
+    return PEMEncoder.decode_public_key(pem_bytes.decode(), curve.secp256k1)
 
 
 def verify(verifying_key: t.Any, digest_bytes: bytes, signature: bytes) -> bool:
