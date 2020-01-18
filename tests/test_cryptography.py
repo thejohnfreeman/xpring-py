@@ -6,10 +6,9 @@ from cryptography.hazmat.primitives.asymmetric import ec, utils
 from cryptography.utils import register_interface
 import pytest
 
-from .fixtures import (
-    IdentityHash,
-    SECP256K1_SIGNATURE_EXAMPLES,
-)
+from xpring.hashes import IdentityHash
+
+from .fixtures import SECP256K1_SIGNATURE_EXAMPLES
 
 register_interface(hashes.HashAlgorithm)(IdentityHash)
 

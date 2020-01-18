@@ -23,12 +23,12 @@ SECP256K1_SIGNATURE_EXAMPLES = (
             id='39dfc6',
         ),
         # https://github.com/ripple/ripple-keypairs/blob/master/test/fixtures/api.json#L2-L11
-        # (
-        #     'd78b9735c3f26501c7337b8a5727fd53a6efdbc6aa55984f098488561f985e23',
-        #     # sha512half(b'test message')
-        #     '950b2a7effa78f51a63515ec45e03ecebe50ef2f1c41e69629b50778f11bc080',
-        #     '30440220583a91c95e54e6a651c47bec22744e0b101e2c4060e7b08f6341657dad9bc3ee02207d1489c7395db0188d3a56a977ecba54b36fa9371b40319655b1b4429e33ef2d',
-        # ),
+        (
+            'd78b9735c3f26501c7337b8a5727fd53a6efdbc6aa55984f098488561f985e23',
+            # sha512half(b'test message')
+            '950b2a7effa78f51a63515ec45e03ecebe50ef2f1c41e69629b50778f11bc080',
+            '30440220583a91c95e54e6a651c47bec22744e0b101e2c4060e7b08f6341657dad9bc3ee02207d1489c7395db0188d3a56a977ecba54b36fa9371b40319655b1b4429e33ef2d',
+        ),
     ]
 )
 
@@ -51,25 +51,4 @@ class Sha512Half:
         return self.digest().hex()
 
     def copy(self) -> 'Sha512Half':
-        return self.__class__(self.data)
-
-
-class IdentityHash:
-    digest_size = 32
-    block_size = 32
-    name = 'identity'
-
-    def __init__(self, data: bytes = b'') -> None:
-        self.data = bytes(data)
-
-    def update(self, data: bytes) -> None:
-        self.data += bytes(data)
-
-    def digest(self) -> bytes:
-        return self.data
-
-    def hexdigest(self) -> str:
-        return self.digest().hex()
-
-    def copy(self) -> 'IdentityHash':
         return self.__class__(self.data)

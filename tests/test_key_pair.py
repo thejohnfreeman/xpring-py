@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import pytest
 
 from xpring.key_pair import KeyPair
@@ -53,3 +54,16 @@ def test_address(
 ):
     key_pair = KeyPair.from_encoded_seed(encoded_seed)
     assert key_pair.address == address
+
+
+@pytest.mark.parametrize(*KEY_PAIR_EXAMPLES)
+def test_sign_verify(
+    encoded_seed: EncodedSeed,
+    private_key_hex: str,
+    public_key_hex: str,
+    address: Address,
+):
+    key_pair = KeyPair.from_encoded_seed(encoded_seed)
+    message = b'message'
+    signature = key_pair.sign(message)
+    assert key_pair.verify(message, signature)

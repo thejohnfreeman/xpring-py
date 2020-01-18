@@ -1,6 +1,9 @@
 import typing as t
 
 from fastecdsa import curve, ecdsa, keys
+from fastecdsa.encoding.der import DEREncoder
+from ecdsa import curves, SigningKey, VerifyingKey
+from ecdsa.util import sigdecode_der, sigencode_der_canonize
 
 from xpring import hashes
 from xpring.algorithms.signing import Seed, PrivateKey, PublicKey, Signature
@@ -61,8 +64,28 @@ def derive_key_pair(seed: Seed) -> t.Tuple[PrivateKey, PublicKey]:
 
 
 def sign(message: bytes, private_key: PrivateKey) -> Signature:
-    return t.cast(Signature, b'')
+    digest = hashes.sha512half(message)
+    signing_key = int.from_bytes(private_key, byteorder='big')
+    r, s = ecdsa.sign(
+        digest.hex(),
+        signing_key,
+        curve=curve.secp256k1,
+        prehashed=True,
+    )
+    signature = DEREncoder.encode_signature(r, s)
+    return t.cast(Signature, signature)
 
 
 def verify(message: bytes, signature: Signature, public_key: PublicKey) -> bool:
-    return True
+    digest = hashes.sha512half(message)
+    # We need `ecdsa` to decompress the public key.
+    # Would be nice if fastecdsa could do this.
+    # TODO: Implement it ourselves.
+    # https://github.com/AntonKueltz/fastecdsa/issues/47
+    verifying_key = VerifyingKey.from_string(public_key, curves.SECP256k1)
+    return verifying_key.verify(
+        signature,
+        digest,
+        hashfunc=hashes.IdentityHash,
+        sigdecode=sigdecode_der,
+    )

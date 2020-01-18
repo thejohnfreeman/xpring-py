@@ -5,7 +5,7 @@ from ecdsa import curves, SigningKey, VerifyingKey
 # (modulo the order) if above order/2.
 from ecdsa.util import sigdecode_der, sigencode_der_canonize
 
-from .fixtures import IdentityHash
+from xpring.hashes import IdentityHash
 
 
 def make_signing_key(signing_key_bytes: bytes) -> t.Any:

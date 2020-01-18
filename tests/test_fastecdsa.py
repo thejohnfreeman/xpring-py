@@ -4,7 +4,7 @@ from fastecdsa import curve, ecdsa, keys
 from fastecdsa.encoding.der import DEREncoder
 from fastecdsa.encoding.pem import PEMEncoder
 
-from .fixtures import IdentityHash
+from xpring.hashes import IdentityHash
 
 
 def make_signing_key(signing_key_bytes: bytes) -> t.Any:
