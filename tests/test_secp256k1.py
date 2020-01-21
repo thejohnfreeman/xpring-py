@@ -3,14 +3,14 @@ import typing as t
 import pytest
 
 from .fixtures import SECP256K1_SIGNATURE_EXAMPLES
-from . import test_cryptography
-from . import test_ecdsa
-from . import test_fastecdsa
+from . import cryptography
+from . import ecdsa
+from . import fastecdsa
 
 SECP256K1_LIBRARY_EXAMPLES = (
-    pytest.param(test_cryptography, id='cryptography'),
-    pytest.param(test_ecdsa, id='ecdsa'),
-    pytest.param(test_fastecdsa, id='fastecdsa'),
+    pytest.param(cryptography, id='cryptography'),
+    pytest.param(ecdsa, id='ecdsa'),
+    pytest.param(fastecdsa, id='fastecdsa'),
 )
 
 
@@ -23,7 +23,7 @@ def test_determinism(
     module: t.Any,
 ):
     # This package offers no deterministic signing algorithm.
-    if module == test_cryptography:
+    if module == cryptography:
         return
 
     signing_key_bytes = bytes.fromhex(signing_key_hex)
