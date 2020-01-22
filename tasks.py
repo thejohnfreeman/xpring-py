@@ -19,7 +19,7 @@ def proto(c):
     # so we use this workaround.
     # https://github.com/protocolbuffers/protobuf/issues/1491
 
-    src_dir = 'xpring-common-protocol-buffers/proto'
+    src_dir = 'submodules/xpring-common-protocol-buffers/proto'
     dst_dir = 'xpring/proto'
     # Doctest imports each module independently, with no parent package,
     # which breaks relative imports. Thus, we must use absolute imports.
@@ -42,7 +42,9 @@ def proto(c):
 
 @task
 def definitions(c):
-    shutil.copy('ripple-binary-codec/src/enums/definitions.json', 'xpring')
+    shutil.copy(
+        'submodules/ripple-binary-codec/src/enums/definitions.json', 'xpring'
+    )
 
 
 @task(pre=[proto, definitions])
