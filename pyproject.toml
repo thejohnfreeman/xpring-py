@@ -21,6 +21,7 @@ typing_extensions = "^3.7"
 dataclasses = "^0.6.0"
 fastecdsa = "^2.0"
 ecdsa = "^0.15.0"
+protobuf = "^3.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx_rtd_theme", "toml"]
