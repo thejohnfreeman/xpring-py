@@ -115,18 +115,19 @@ Develop
 Dependencies
 ------------
 
-The protocol buffers are in a submodule:
+The protocol buffers and definitions file are in submodules:
 
 .. code-block:: shell
 
    git submodule init
 
-Use Poetry_ to install dependencies and build the protocol buffers:
+Use Poetry_ to install dependencies, build the protocol buffers, and copy the
+definitions file:
 
 .. code-block:: shell
 
    poetry install
-   poetry run invoke proto
+   poetry run invoke prebuild
 
 .. _Poetry: https://python-poetry.org/docs/
 

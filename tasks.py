@@ -1,6 +1,7 @@
 from invoke import task
 import multiprocessing
 from pathlib import Path
+import shutil
 import sys
 import toml
 
@@ -37,6 +38,16 @@ def proto(c):
     # TODO: Look for a Python replacement for sed.
     c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
     c.run(f"sed -i -E 's/^from\s+(\S+_pb2)/from .\\1/' {dst_dir}/*.pyi")
+
+
+@task
+def definitions(c):
+    shutil.copy('ripple-binary-codec/src/enums/definitions.json', 'xpring')
+
+
+@task(pre=[proto, definitions])
+def prebuild(c):
+    pass
 
 
 @task

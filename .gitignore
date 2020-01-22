@@ -6,3 +6,4 @@ __pycache__/
 /docs/_build/
 /dist/
 /xpring/proto/
+/xpring/definitions.json
