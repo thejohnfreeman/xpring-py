@@ -5,9 +5,9 @@ install:
   - poetry install
 
 script:
-  - poetry run invoke proto
+  - poetry run invoke prebuild
+  - poetry run tox
   - poetry run invoke lint
-  - poetry run invoke test
 
 matrix:
   include:
