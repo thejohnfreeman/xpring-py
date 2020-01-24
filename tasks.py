@@ -1,6 +1,9 @@
+import fileinput
+import glob
 from invoke import task
 import multiprocessing
 from pathlib import Path
+import re
 import shutil
 import sys
 import toml
@@ -11,6 +14,15 @@ pty = sys.stdout.isatty()
 def get_package_name() -> str:
     pyproject = toml.load(open('pyproject.toml', 'r'))
     return pyproject['tool']['poetry']['name']
+
+
+def substitute(files: str, pattern: str, replacement: str):
+    """A cross-platform approximation of `sed -i -E s/pattern/replacement/ files`."""
+    with fileinput.input(
+        files=glob.glob(files, recursive=True), inplace=True
+    ) as file:
+        for line in file:
+            print(re.sub(pattern, replacement, line), end='')
 
 
 @task
@@ -35,9 +47,8 @@ def proto(c):
         f'{src_dir}/*.proto'
     )
     # We can assume Python is in the environment, but not sed.
-    # TODO: Look for a Python replacement for sed.
-    c.run(f"sed -i -E 's/^import.*_pb2/from . \\0/' {dst_dir}/*.py")
-    c.run(f"sed -i -E 's/^from\s+(\S+_pb2)/from .\\1/' {dst_dir}/*.pyi")
+    substitute(f'{dst_dir}/*.py', '^import.*_pb2', 'from . \g<0>')
+    substitute(f'{dst_dir}/*.pyi', '^from\s+(\S+_pb2)', 'from .\g<1>')
 
 
 @task
