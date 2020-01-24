@@ -42,6 +42,7 @@ yapf = "^0.28.0"
 grpcio-tools = "^1.24"
 grpc-stubs = "^1.24"
 mypy-protobuf = "^1.16"
+tox = "^3.14"
 
 [build-system]
 requires = ["poetry>=0.12"]
