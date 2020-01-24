@@ -119,7 +119,7 @@ The protocol buffers and definitions file are in submodules:
 
 .. code-block:: shell
 
-   git submodule init
+   git submodule update --init
 
 Use Poetry_ to install dependencies, build the protocol buffers, and copy the
 definitions file:
