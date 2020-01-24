@@ -1,10 +1,10 @@
 import pytest
 
-from .fixtures import SECP256K1_SIGNATURE_EXAMPLES
-from .cryptography import make_signing_key
+from fixtures.secp256k1 import SIGNATURE_EXAMPLES
+from fixtures.packages.cryptography import make_signing_key
 
 
-@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
 def test_key(
     signing_key_hex: str,
     message_digest_hex: str,

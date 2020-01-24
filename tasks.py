@@ -75,7 +75,7 @@ def lint(c):
 def test(c):
     package_name = get_package_name()
     c.run(
-        f'pytest --cov={package_name} --ignore=docs --ignore=tasks.py --doctest-modules',
+        f'pytest --cov={package_name} --doctest-modules {package_name} tests',
         echo=True,
         pty=pty
     )

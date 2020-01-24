@@ -2,20 +2,18 @@ import typing as t
 
 import pytest
 
-from .fixtures import SECP256K1_SIGNATURE_EXAMPLES
-from . import cryptography
-from . import ecdsa
-from . import fastecdsa
+from fixtures.secp256k1 import SIGNATURE_EXAMPLES
+from fixtures.packages import cryptography, ecdsa, fastecdsa
 
-SECP256K1_LIBRARY_EXAMPLES = (
+PACKAGE_EXAMPLES = (
     pytest.param(cryptography, id='cryptography'),
     pytest.param(ecdsa, id='ecdsa'),
     pytest.param(fastecdsa, id='fastecdsa'),
 )
 
 
-@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
-@pytest.mark.parametrize('module', SECP256K1_LIBRARY_EXAMPLES)
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize('module', PACKAGE_EXAMPLES)
 def test_determinism(
     signing_key_hex: str,
     message_digest_hex: str,
@@ -42,8 +40,8 @@ def test_determinism(
 # signatures, including its own.
 
 
-@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
-@pytest.mark.parametrize('module', SECP256K1_LIBRARY_EXAMPLES)
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize('module', PACKAGE_EXAMPLES)
 def test_verify(
     signing_key_hex: str,
     message_digest_hex: str,
@@ -59,9 +57,9 @@ def test_verify(
     assert module.verify(verifying_key, digest_bytes, signature_bytes)
 
 
-@pytest.mark.parametrize(*SECP256K1_SIGNATURE_EXAMPLES)
-@pytest.mark.parametrize('module1', SECP256K1_LIBRARY_EXAMPLES)
-@pytest.mark.parametrize('module2', SECP256K1_LIBRARY_EXAMPLES)
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize('module1', PACKAGE_EXAMPLES)
+@pytest.mark.parametrize('module2', PACKAGE_EXAMPLES)
 def test_agreement(
     signing_key_hex: str,
     message_digest_hex: str,

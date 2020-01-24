@@ -1,10 +1,10 @@
 import nacl.signing
 import pytest
 
-from .fixtures import ED25519_SIGNATURE_EXAMPLES
+from fixtures.ed25519 import SIGNATURE_EXAMPLES
 
 
-@pytest.mark.parametrize(*ED25519_SIGNATURE_EXAMPLES)
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
 def test_sign(
     signing_key_hex: str,
     message_hex: str,
