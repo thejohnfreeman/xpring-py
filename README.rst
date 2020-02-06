@@ -141,7 +141,7 @@ There are several Invoke_ tasks:
 
 .. code-block:: shell
 
-   poetry run invoke <task>
+   poetry run invoke ${task}
 
 - ``test``: Pytest_ with coverage and doctests.
 - ``lint``: Mypy_, Pylint_, and Pydocstyle_.
