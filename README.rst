@@ -57,10 +57,14 @@ XRP on the testnet`__.
 
    seed = 'sEdSKaCy2JT7JaM7v95H9SxkhP9wS2r'
    wallet = xpring.Wallet.from_seed(seed)
-   print(wallet.public_key.hex())
-   # ed01fa53fa5a7e77798f882ece20b1abc00bb358a9e55a202d0d0676bd0ce37a63
    print(wallet.private_key.hex())
    # b4c4e046826bd26190d09715fc31f4e6a728204eadd112905b08b14b7f15c4f3
+   print(wallet.public_key.hex())
+   # ed01fa53fa5a7e77798f882ece20b1abc00bb358a9e55a202d0d0676bd0ce37a63
+   print(wallet.account_id.hex())
+   # d28b177e48d9a8d057e70f7e464b498367281b98
+   print(wallet.address)
+   # rLUEXYuLiQptky37CqLcm9USQpPiz5rkpD
 
 
 Sign / Verify
