@@ -45,7 +45,7 @@ Wallet
 Construct
 ---------
 
-You can construct a :class:`Wallet` from its seed.
+You can construct a ``Wallet`` from its seed.
 If you do not have your own wallet yet, you can `generate one with some free
 XRP on the testnet`__.
 
@@ -66,8 +66,8 @@ XRP on the testnet`__.
 Sign / Verify
 -------------
 
-A :class:`Wallet` can sign and verify arbitrary bytes, but you'll generally
-want to leave these low-level responsibilities to the :class:`Client`.
+A ``Wallet`` can sign and verify arbitrary bytes, but you'll generally
+want to leave these low-level responsibilities to the ``Client``.
 
 .. code-block:: python
 
@@ -81,12 +81,12 @@ want to leave these low-level responsibilities to the :class:`Client`.
 Client
 ------
 
-:class:`Client` is the gateway into the XRP Ledger.
+``Client`` is the gateway into the XRP Ledger.
 
 Construct
 ---------
 
-:class:`Client` is constructed with the URL of a Xpring server.
+``Client`` is constructed with the URL of a Xpring server.
 You may use the one operated by Ripple for the XRP testnet.
 
 .. code-block:: python
