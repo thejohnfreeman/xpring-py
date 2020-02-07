@@ -32,7 +32,7 @@ Install
 
 .. code-block:: shell
 
-   pip install xpring
+   pip install xpring[py]
 
 
 API
