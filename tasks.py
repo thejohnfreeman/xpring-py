@@ -33,10 +33,6 @@ def proto(c):
 
     src_dir = 'submodules/xpring-common-protocol-buffers/proto'
     dst_dir = 'xpring/proto'
-    # Doctest imports each module independently, with no parent package,
-    # which breaks relative imports. Thus, we must use absolute imports.
-    # package = '.'
-    package = 'xpring.proto'
 
     Path(dst_dir).mkdir(exist_ok=True)
     c.run(
@@ -46,7 +42,10 @@ def proto(c):
         f'--mypy_out=quiet:{dst_dir} '
         f'{src_dir}/*.proto'
     )
+
     # We can assume Python is in the environment, but not sed.
+    # Change absolute imports of sibling protobufs to relative imports
+    # because the protobufs are nested under package `xpring.proto`.
     substitute(f'{dst_dir}/*.py', '^import.*_pb2', 'from . \g<0>')
     substitute(f'{dst_dir}/*.pyi', '^from\s+(\S+_pb2)', 'from .\g<1>')
 
