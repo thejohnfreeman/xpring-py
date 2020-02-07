@@ -2,6 +2,8 @@ language: python
 
 install:
   - pip3 install poetry
+  - poetry env use python3
+  - poetry env info
   - poetry install
 
 script:
@@ -15,19 +17,16 @@ matrix:
       dist: xenial
       python: 3.6-dev
       env:
-        POETRYENV=3.6
         TOXENV=py36
     - os: linux
       dist: xenial
       python: 3.7-dev
       env:
-        POETRYENV=3.7
         TOXENV=py37
     - os: osx
       # `xcode10.2` has Python 3.7.3.
       osx_image: xcode10.2
       env:
-        POETRYENV=3.7
         TOXENV=py37
       # `language: python` tries to install Python, which fails on OSX.
       language: shell
