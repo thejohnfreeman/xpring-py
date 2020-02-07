@@ -1,6 +1,8 @@
+import typing as t
+
 from xpring.key_pair import KeyPair
 from xpring.types import (
-    Address, EncodedSeed, Seed, PrivateKey, PublicKey, Signature
+    AccountId, Address, EncodedSeed, Seed, PrivateKey, PublicKey, Signature
 )
 
 
@@ -10,9 +12,13 @@ class Wallet:
         self.key_pair = key_pair
 
     @classmethod
-    def from_seed(cls, encoded_seed: EncodedSeed):
-        key_pair = KeyPair.from_encoded_seed(encoded_seed)
+    def from_seed(cls, seed: EncodedSeed):
+        key_pair = KeyPair.from_encoded_seed(seed)
         return cls(key_pair)
+
+    @property
+    def account_id(self) -> AccountId:
+        return self.key_pair.account_id
 
     @property
     def address(self) -> Address:
@@ -25,3 +31,9 @@ class Wallet:
     @property
     def private_key(self) -> PrivateKey:
         return self.key_pair.private_key
+
+    def sign(self, message: bytes) -> bytes:
+        return self.key_pair.sign(message)
+
+    def verify(self, message: bytes, signature: bytes) -> bool:
+        return self.key_pair.verify(message, t.cast(Signature, signature))
