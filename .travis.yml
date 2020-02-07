@@ -1,9 +1,8 @@
 language: python
 
 install:
-  - pip3 install poetry
-  - poetry env use python3
-  - poetry env info
+  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+  - export PATH=$HOME/.poetry/bin:$PATH
   - poetry install
 
 script:
