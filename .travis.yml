@@ -2,8 +2,6 @@ language: python
 
 install:
   - pip3 install poetry
-  - poetry env use ${POETRYENV}
-  - poetry env info
   - poetry install
 
 script:
