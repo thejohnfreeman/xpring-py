@@ -13,6 +13,7 @@ include = ["xpring/proto/*.py*"]
 [tool.poetry.dependencies]
 python = ">=3.6"
 sphinx = {version = "^1.8",optional = true}
+sphinx-autobuild = {version = "^0.7.1",optional = true}
 sphinx_rtd_theme = {version = "^0.4.3",optional = true}
 toml = {version = "^0.10.0",optional = true}
 grpcio = "^1.24"
@@ -25,7 +26,7 @@ protobuf = "^3.0"
 
 [tool.poetry.extras]
 py = ["fastecdsa"]
-docs = ["sphinx", "sphinx_rtd_theme", "toml"]
+docs = ["sphinx", "sphinx-autobuild", "sphinx_rtd_theme", "toml"]
 
 [tool.poetry.dev-dependencies]
 cryptography = "^2.8"
@@ -35,10 +36,6 @@ pydocstyle = "^4.0"
 pylint = "^2.4"
 pytest = "^5.2"
 pytest-cov = "^2.7"
-sphinx = "^1.8"
-sphinx-autobuild = "^0.7.1"
-sphinx_rtd_theme = "^0.4.3"
-toml = "^0.10.0"
 yapf = "^0.28.0"
 grpcio-tools = "^1.24"
 grpc-stubs = "^1.24"
