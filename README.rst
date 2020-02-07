@@ -99,6 +99,21 @@ You may use the one operated by Ripple for the XRP testnet.
    client = xpring.Client.from_url(url)
 
 
+Account
+-------
+
+.. code-block:: python
+
+   address = 'r3v29rxf54cave7ooQE6eE7G5VFXofKZT7'
+   client.get_account_info(address)
+   # Account(
+   #   balance=1000000000,
+   #   sequence=1,
+   #   previous_txn_id='7029D77041446B8E6BF3B3302DE7F90CEB9CF4C16AED54B7F81C2EC7A2B3D1BA',
+   #   previous_txn_lgr_seq=4402909,
+   # )
+
+
 Balance
 -------
 
@@ -107,6 +122,15 @@ Balance
    address = 'r3v29rxf54cave7ooQE6eE7G5VFXofKZT7'
    client.get_balance(address)
    # 1000000000
+
+
+Fee
+---
+
+.. code-block:: python
+
+   client.get_fee()
+   # 12
 
 
 .. end-include
