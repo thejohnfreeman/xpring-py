@@ -2,8 +2,10 @@ import typing as t
 
 from fastecdsa import curve, ecdsa, keys
 from fastecdsa.encoding.der import DEREncoder
-from ecdsa import curves, SigningKey, VerifyingKey
-from ecdsa.util import sigdecode_der, sigencode_der_canonize
+# We use ecdsa only for verifying, until we can decode DER with fastecdsa:
+# https://github.com/AntonKueltz/fastecdsa/issues/47
+from ecdsa import curves, VerifyingKey
+from ecdsa.util import sigdecode_der
 
 from xpring import hashes
 from xpring.algorithms.signing import Seed, PrivateKey, PublicKey, Signature
