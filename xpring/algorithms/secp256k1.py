@@ -9,15 +9,7 @@ from ecdsa.util import sigdecode_der
 
 from xpring import hashes
 from xpring.algorithms.signing import Seed, PrivateKey, PublicKey, Signature
-
-
-def to_bytes(i: int, length: int) -> bytes:
-    return i.to_bytes(length, byteorder='big', signed=False)
-
-
-def from_bytes(bites: bytes) -> int:
-    return int.from_bytes(bites, byteorder='big', signed=False)
-
+from xpring.bits import from_bytes, to_bytes
 
 SEED_PREFIX = b'\x21'
 FAMILY = bytes(4)
