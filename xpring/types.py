@@ -1,5 +1,7 @@
 import typing as t
 
+import typing_extensions as tex
+
 # 16 bytes.
 # The two key-derivation functions we have today both use 128-bit keys,
 # but only by happy accident.
@@ -21,3 +23,15 @@ AccountId = t.NewType('AccountId', bytes)
 Address = t.NewType('Address', str)
 
 Signature = t.NewType('Signature', bytes)
+
+NonXrpAmount = tex.TypedDict(
+    'NonXrpAmount', {
+        'value': str,
+        'currency': str,
+        'issuer': str,
+    }
+)
+
+XrpAmount = str
+
+Amount = t.Union[XrpAmount, NonXrpAmount]
