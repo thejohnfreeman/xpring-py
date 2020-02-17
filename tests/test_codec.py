@@ -6,28 +6,31 @@ from xpring.key_pair import derive_account_id
 
 
 @pytest.mark.parametrize(
-    'bites,encoded_bites', [
+    ('bites', 'encoded_bites'), (
         (b'\0\0\0\0', 'rrrr'),
         (b'\0\0\0\x01', 'rrrp'),
         (b'\x01', 'p'),
-    ]
+    )
 )
 def test_encode(bites, encoded_bites):
     assert codec.encode(bites) == encoded_bites
 
 
-CHECKSUM_EXAMPLES = [
-    # https://github.com/ripple/ripple-address-codec/blob/master/src/xrp-codec.test.ts#L156-L161
-    (b'\x00123456789', 'rnaC7gW34M77Kneb78s'),
-]
+CHECKSUM_EXAMPLES = (
+    ('bites', 'encoded_bites'),
+    (
+        # https://github.com/ripple/ripple-address-codec/blob/master/src/xrp-codec.test.ts#L156-L161
+        (b'\x00123456789', 'rnaC7gW34M77Kneb78s'),
+    )
+)
 
 
-@pytest.mark.parametrize('bites,encoded_bites', CHECKSUM_EXAMPLES)
+@pytest.mark.parametrize(*CHECKSUM_EXAMPLES)
 def test_encode_with_checksum(bites, encoded_bites):
     assert codec.encode_with_checksum(bites) == encoded_bites
 
 
-@pytest.mark.parametrize('bites,encoded_bites', CHECKSUM_EXAMPLES)
+@pytest.mark.parametrize(*CHECKSUM_EXAMPLES)
 def test_decode_with_checksum(bites, encoded_bites):
     assert codec.decode_with_checksum(encoded_bites) == bites
 
