@@ -99,13 +99,9 @@ def serialize_amount(amount: Amount) -> bytes:
 
 def serialize_array(array: t.Iterable) -> bytes:
     """Serialize an array of objects."""
-    blob = bytearray()
-    for item in array:
-        field_name = next(iter(item.keys()))
-        field = FIELDS_BY_NAME[field_name]
-        blob.extend(serialize_field(field, item[field_name]))
-    blob.extend(ARRAY_END_MARKER)
-    return blob
+    return b''.join(
+        serialize_object(item, mark=False) for item in array
+    ) + ARRAY_END_MARKER
 
 
 def serialize_blob(blob_hex: str) -> bytes:
