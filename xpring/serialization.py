@@ -9,6 +9,8 @@ import pkg_resources
 import re
 import typing as t
 
+import typing_extensions as tex
+
 from xpring.bits import from_bytes, to_bytes
 from xpring.codec import DEFAULT_CODEC
 from xpring.issued_amount import IssuedAmount
@@ -135,6 +137,24 @@ def serialize_currency(currency: str) -> bytes:
     raise ValueError(f'unknown currency code: {currency}')
 
 
+def serialize_field(field, value):
+    id_bytes = field['id']
+    serialize = field['serialize']
+    if serialize is None:
+        field_name = field['name']
+        field_type = field['type']
+        raise NotImplementedError(
+            f'cannot serialize field {field_name} ({field_type})'
+        )
+    try:
+        value_bytes = serialize(value)
+    except ValueError as cause:
+        field_type = field['type']
+        field_name = field['name']
+        raise ValueError(f'field {field_name} ({field_type}): {str(cause)}')
+    return id_bytes + value_bytes
+
+
 def serialize_hash(bits: int, value: str) -> bytes:
     blob = bytes.fromhex(value)
     if len(blob) * 8 != bits:
@@ -179,18 +199,20 @@ def serialize_object(
     return blob
 
 
-def serialize_pathset(pathset: t.Collection) -> bytes:
-    print(f'pathset: {pathset}')
-    if not len(pathset):
-        raise ValueError('a PathSet must not be empty')
-    return b'\xFF'.join(serialize_path(path) for path in pathset) + b'\x00'
-
-
 def serialize_path(path: t.Collection) -> bytes:
     print(f'path: {path}')
     if not len(path):
         raise ValueError('a Path must not be empty')
     return b''.join(serialize_step(step) for step in path)
+
+
+def serialize_pathset(pathset: t.Collection) -> bytes:
+    print(f'pathset: {pathset}')
+    if not len(pathset):
+        raise ValueError('a PathSet must not be empty')
+    return PATH_END_MARKER.join(
+        serialize_path(path) for path in pathset
+    ) + PATHSET_END_MARKER
 
 
 def serialize_step(step: t.Mapping) -> bytes:
@@ -205,6 +227,10 @@ def serialize_step(step: t.Mapping) -> bytes:
         blob[0] |= 0x20
         blob.extend(DEFAULT_CODEC.decode_address(step['issuer']))
     return blob
+
+
+def serialize_transaction_type(name: str) -> bytes:
+    return to_bytes(TRANSACTION_TYPES_BY_NAME[name], 2)
 
 
 def serialize_uint(bits: int, value: int) -> bytes:
@@ -234,12 +260,15 @@ class Scanner:
         self.stream = stream
         self.cursor = 0
 
-    def __bool__(self):
+    @property
+    def inexhausted(self):
         return self.cursor < len(self.stream)
 
-    @property
-    def tail(self) -> bytes:
-        return self.stream[self.cursor:]
+    def __bool__(self):
+        return self.inexhausted
+
+    def peek1(self) -> int:
+        return self.stream[self.cursor]
 
     def skip(self, length: int) -> None:
         self.cursor += length
@@ -258,22 +287,18 @@ def vl_decode(scanner: Scanner) -> bytes:
 
     https://xrpl.org/serialization.html#length-prefixing
     """
-    byte1 = scanner.tail[0]
+    byte1 = scanner.take1()
     if byte1 < 193:
-        prefix = 1
         length = byte1
     elif byte1 < 241:
-        prefix = 2
-        length = 193 + (byte1 - 193) * 256 + scanner.tail[1]
+        byte2 = scanner.take1()
+        length = 193 + (byte1 - 193) * 256 + byte2
     elif byte1 < 255:
-        prefix = 3
-        length = (
-            12481 + (byte1 - 241) * 645536 + scanner.tail[1] * 256 +
-            scanner.tail[2]
-        )
+        byte2 = scanner.take1()
+        byte3 = scanner.take1()
+        length = 12481 + (byte1 - 241) * 645536 + byte2 * 256 + byte3
     else:
         raise ValueError(f'not a length prefix: {byte1}')
-    scanner.skip(prefix)
     return scanner.take(length)
 
 
@@ -283,7 +308,7 @@ def deserialize_account_id(scanner: Scanner) -> Address:
 
 
 def deserialize_amount(scanner: Scanner) -> Amount:
-    byte1 = scanner.tail[0]
+    byte1 = scanner.peek1()
     # Most-significant bit is the format bit. 1 means "is not XRP".
     if not byte1 & (1 << 7):
         # Second most-significant bit is the sign bit. 1 means "is positive".
@@ -296,6 +321,15 @@ def deserialize_amount(scanner: Scanner) -> Amount:
     currency = deserialize_currency(scanner)
     issuer = DEFAULT_CODEC.encode_address(t.cast(AccountId, scanner.take(20)))
     return {'value': value, 'currency': currency, 'issuer': issuer}
+
+
+def deserialize_array(scanner: Scanner) -> t.List:
+    array = []
+    while scanner.peek1() != ARRAY_END_MARKER:
+        key, value = deserialize_field(scanner)
+        array.append({key: value})
+    scanner.skip(1)
+    return array
 
 
 def deserialize_blob(scanner: Scanner) -> str:
@@ -312,6 +346,35 @@ def deserialize_currency(scanner: Scanner) -> str:
     return blob.hex().upper()
 
 
+def deserialize_field(scanner: Scanner) -> t.Tuple[str, t.Any]:
+    type_code, field_code = deserialize_field_key(scanner)
+    field = FIELDS_BY_ID[(type_code, field_code)]
+    deserialize = field['deserialize']
+    if deserialize is None:
+        field_name = field['name']
+        field_type = field['type']
+        raise NotImplementedError(
+            f'cannot deserialize field {field_name} ({field_type})'
+        )
+    value = deserialize(scanner)
+    return (field['name'], value)
+
+
+TypeCode = t.NewType('TypeCode', int)
+FieldCode = t.NewType('FieldCode', int)
+
+
+def deserialize_field_key(scanner: Scanner) -> t.Tuple[TypeCode, FieldCode]:
+    byte1 = scanner.take1()
+    type_code = byte1 >> 4
+    if not type_code:
+        type_code = scanner.take1()
+    field_code = byte1 & 0x0F
+    if not field_code:
+        field_code = scanner.take1()
+    return (t.cast(TypeCode, type_code), t.cast(FieldCode, field_code))
+
+
 def deserialize_hash(bits: int, scanner: Scanner) -> str:
     return scanner.take(bits // 8).hex().upper()
 
@@ -326,6 +389,64 @@ def deserialize_hash160(scanner: Scanner) -> str:
 
 def deserialize_hash256(scanner: Scanner) -> str:
     return deserialize_hash(256, scanner)
+
+
+def deserialize_object(scanner: Scanner) -> t.Mapping:
+    object_ = {}
+    while scanner.peek1() != OBJECT_END_MARKER:
+        key, value = deserialize_field(scanner)
+        object_[key] = value
+    scanner.skip(1)
+    return object_
+
+
+Step = tex.TypedDict(
+    'Step', {
+        'account': Address,
+        'currency': str,
+        'issuer': Address
+    },
+    total=False
+)
+Path = t.Collection[Step]
+PathSet = t.Collection[Path]
+
+
+def deserialize_path(scanner: Scanner) -> Path:
+    path = []
+    while scanner.peek1() not in (PATH_END_MARKER, PATHSET_END_MARKER):
+        path.append(deserialize_step(scanner))
+    if scanner.peek1() == PATH_END_MARKER:
+        scanner.skip(1)
+    return path
+
+
+def deserialize_pathset(scanner: Scanner) -> PathSet:
+    pathset = []
+    while scanner.peek1() != PATHSET_END_MARKER:
+        pathset.append(deserialize_path(scanner))
+    scanner.skip(1)
+    return pathset
+
+
+def deserialize_step(scanner: Scanner) -> Step:
+    header = scanner.take1()
+    step = t.cast(Step, {})
+    if header & 0x01:
+        step['account'] = DEFAULT_CODEC.encode_address(
+            t.cast(AccountId, scanner.take(20))
+        )
+    if header & 0x10:
+        step['currency'] = deserialize_currency(scanner)
+    if header & 0x20:
+        step['issuer'] = DEFAULT_CODEC.encode_address(
+            t.cast(AccountId, scanner.take(20))
+        )
+    return step
+
+
+def deserialize_transaction_type(scanner: Scanner) -> str:
+    return TRANSACTION_TYPES_BY_CODE[from_bytes(scanner.take(2))]
 
 
 def deserialize_uint(bits: int, scanner: Scanner) -> int:
@@ -355,24 +476,15 @@ CODECS = {
     'Hash128': (serialize_hash128, deserialize_hash128),
     'Hash160': (serialize_hash160, deserialize_hash160),
     'Hash256': (serialize_hash256, deserialize_hash256),
-    'PathSet': (serialize_pathset, None),
-    'STArray': (serialize_array, None),
-    'STObject': (serialize_object, None),
+    'PathSet': (serialize_pathset, deserialize_pathset),
+    'STArray': (serialize_array, deserialize_array),
+    'STObject': (serialize_object, deserialize_object),
     'UInt8': (serialize_uint8, deserialize_uint8),
     'UInt16': (serialize_uint16, deserialize_uint16),
     'UInt32': (serialize_uint32, deserialize_uint32),
     'UInt64': (serialize_uint64, deserialize_uint64),
     'Vector256': (None, None),
 }
-
-
-def serialize_transaction_type(name: str) -> bytes:
-    return to_bytes(TRANSACTION_TYPES_BY_NAME[name], 2)
-
-
-def deserialize_transaction_type(scanner: Scanner) -> str:
-    return TRANSACTION_TYPES_BY_CODE[from_bytes(scanner.take(2))]
-
 
 # TODO: Consider lazy initialization.
 _DEFINITIONS = json.load(
@@ -398,61 +510,7 @@ for field_name, field in FIELDS_BY_NAME.items():
 FIELDS_BY_NAME['TransactionType']['serialize'] = serialize_transaction_type
 FIELDS_BY_NAME['TransactionType']['deserialize'] = deserialize_transaction_type
 FIELDS_BY_ID = {v['key']: v for v in FIELDS_BY_NAME.values() if 'key' in v}
+PATH_END_MARKER = b'\xFF'
+PATHSET_END_MARKER = b'\x00'
 ARRAY_END_MARKER = FIELDS_BY_NAME['ArrayEndMarker']['id']
 OBJECT_END_MARKER = FIELDS_BY_NAME['ObjectEndMarker']['id']
-
-
-def serialize_field(field, value):
-    id_bytes = field['id']
-    serialize = field['serialize']
-    if serialize is None:
-        field_name = field['name']
-        field_type = field['type']
-        raise NotImplementedError(
-            f'cannot serialize field {field_name} ({field_type})'
-        )
-    try:
-        value_bytes = serialize(value)
-    except ValueError as cause:
-        field_type = field['type']
-        field_name = field['name']
-        raise ValueError(f'field {field_name} ({field_type}): {str(cause)}')
-    return id_bytes + value_bytes
-
-
-TypeCode = t.NewType('TypeCode', int)
-FieldCode = t.NewType('FieldCode', int)
-
-
-def deserialize_field_key(scanner: Scanner) -> t.Tuple[TypeCode, FieldCode]:
-    byte1 = scanner.take1()
-    type_code = byte1 >> 4
-    if not type_code:
-        type_code = scanner.take1()
-    field_code = byte1 & 0x0F
-    if not field_code:
-        field_code = scanner.take1()
-    return (t.cast(TypeCode, type_code), t.cast(FieldCode, field_code))
-
-
-def deserialize_field(scanner: Scanner) -> t.Tuple[str, t.Any]:
-    type_code, field_code = deserialize_field_key(scanner)
-    field = FIELDS_BY_ID[(type_code, field_code)]
-    deserialize = field['deserialize']
-    if deserialize is None:
-        field_name = field['name']
-        field_type = field['type']
-        raise NotImplementedError(
-            f'cannot deserialize field {field_name} ({field_type})'
-        )
-    value = deserialize(scanner)
-    return (field['name'], value)
-
-
-def deserialize_object(scanner: Scanner) -> dict:
-    object_ = {}
-    while scanner:
-        key, value = deserialize_field(scanner)
-        object_[key] = value
-    assert scanner.cursor == len(scanner.stream)
-    return object_

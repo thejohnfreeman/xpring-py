@@ -4,7 +4,8 @@ import xpring.serialization as serialization
 
 # yapf: disable
 TRANSACTION_EXAMPLES = (
-    ('transaction', 'blob_hex'), (
+    ('transaction', 'blob_hex'),
+    (
         # https://xrpl.org/serialization.html#examples
         (
             {
@@ -163,6 +164,10 @@ TRANSACTION_EXAMPLES = (
 # yapf: enable
 
 
+def without(dictionary, keys):
+    return {k: v for k, v in dictionary.items() if k not in keys}
+
+
 @pytest.mark.parametrize(*TRANSACTION_EXAMPLES)
 def test_serialize_transaction(transaction, blob_hex):
     blob = serialization.serialize_object(transaction, mark=False)
@@ -173,11 +178,35 @@ def test_serialize_transaction(transaction, blob_hex):
 @pytest.mark.parametrize(*TRANSACTION_EXAMPLES)
 def test_deserialize_transaction(transaction, blob_hex):
     scanner = serialization.Scanner(bytes.fromhex(blob_hex))
-    assert serialization.deserialize_object(scanner) == transaction
+    expected = without(transaction, ['hash'])
+    assert serialization.deserialize_object(scanner) == expected
 
 
-def test_codec_amount():
-    amount = '12345'
-    stream = serialization.serialize_amount(amount)
-    scanner = serialization.Scanner(stream)
+# yapf: disable
+AMOUNT_EXAMPLES = (
+    ('amount', 'blob_hex'),
+    (
+        ('12345', '4000000000003039'),
+        (
+            {
+                'currency': 'USD',
+                'issuer': 'rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B',
+                'value': '7072.8',
+            },
+            'D55920AC9391400000000000000000000000000055534400000000000A20B3C85F482532A9578DBB3950B85CA06594D1',
+        )
+    )
+)
+# yapf: enable
+
+
+@pytest.mark.parametrize(*AMOUNT_EXAMPLES)
+def test_serialize_amount(amount, blob_hex):
+    blob = serialization.serialize_amount(amount)
+    assert blob.hex().upper() == blob_hex
+
+
+@pytest.mark.parametrize(*AMOUNT_EXAMPLES)
+def test_deserialize_amount(amount, blob_hex):
+    scanner = serialization.Scanner(bytes.fromhex(blob_hex))
     assert serialization.deserialize_amount(scanner) == amount
