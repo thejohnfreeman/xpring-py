@@ -98,6 +98,7 @@ def serialize_amount(amount: Amount) -> bytes:
 
 
 def serialize_array(array: t.Iterable) -> bytes:
+    """Serialize an array of objects."""
     blob = bytearray()
     for item in array:
         field_name = next(iter(item.keys()))
@@ -182,8 +183,36 @@ def serialize_object(
     return blob
 
 
+def serialize_pathset(pathset: t.Collection) -> bytes:
+    print(f'pathset: {pathset}')
+    if not len(pathset):
+        raise ValueError('a PathSet must not be empty')
+    return b'\xFF'.join(serialize_path(path) for path in pathset) + b'\x00'
+
+
+def serialize_path(path: t.Collection) -> bytes:
+    print(f'path: {path}')
+    if not len(path):
+        raise ValueError('a Path must not be empty')
+    return b''.join(serialize_step(step) for step in path)
+
+
+def serialize_step(step: t.Mapping) -> bytes:
+    blob = bytearray([0])
+    if 'account' in step:
+        blob[0] |= 0x01
+        blob.extend(DEFAULT_CODEC.decode_address(step['account']))
+    if 'currency' in step:
+        blob[0] |= 0x10
+        blob.extend(serialize_currency(step['currency']))
+    if 'issuer' in step:
+        blob[0] |= 0x20
+        blob.extend(DEFAULT_CODEC.decode_address(step['issuer']))
+    return blob
+
+
 def serialize_uint(bits: int, value: int) -> bytes:
-    assert 0 < value < (1 << bits)
+    assert 0 <= value < (1 << bits)
     return to_bytes(value, bits // 8)
 
 
@@ -330,7 +359,7 @@ CODECS = {
     'Hash128': (serialize_hash128, deserialize_hash128),
     'Hash160': (serialize_hash160, deserialize_hash160),
     'Hash256': (serialize_hash256, deserialize_hash256),
-    'PathSet': (None, None),
+    'PathSet': (serialize_pathset, None),
     'STArray': (serialize_array, None),
     'STObject': (serialize_object, None),
     'UInt8': (serialize_uint8, deserialize_uint8),

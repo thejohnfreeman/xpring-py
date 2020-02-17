@@ -96,6 +96,68 @@ TRANSACTION_EXAMPLES = (
             # tx2-binary.txt
             '1200022280000000240000000120190000000B68400000000000277573210268D79CD579D077750740FA18A2370B7C2018B2714ECE70BA65C38D223E79BC9C74473045022100F06FB54049D6D50142E5CF2E2AC21946AF305A13E2A2D4BA881B36484DD01A540220311557EC8BEF536D729605A4CB4D4DC51B1E37C06C93434DD5B7651E1E2E28BF811452C7F01AD13B3CA9C1D133FA8F3482D2EF08FA7D82145A380FBD236B6A1CD14B939AD21101E5B6B6FFA2F9EA7D0F04C4D46544659A2D58525043686174E1F1',
         ),
+        (
+            # tx3.json
+            {
+              'Account': 'rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp',
+              'Amount': '10000000',
+              'Destination': 'rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp',
+              'Fee': '12',
+              'Flags': 0,
+              'LastLedgerSequence': 9902014,
+              'Memos': [
+                {
+                  'Memo': {
+                    'MemoData': '7274312E312E31',
+                    'MemoType': '636C69656E74'
+                  }
+                }
+              ],
+              'Paths': [
+                [
+                  {
+                    'account': 'rPDXxSZcuVL3ZWoyU82bcde3zwvmShkRyF',
+                    'type': 1,
+                    'type_hex': '0000000000000001'
+                  },
+                  {
+                    'currency': 'XRP',
+                    'type': 16,
+                    'type_hex': '0000000000000010'
+                  }
+                ],
+                [
+                  {
+                    'account': 'rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn',
+                    'type': 1,
+                    'type_hex': '0000000000000001'
+                  },
+                  {
+                    'account': 'rMwjYedjc7qqtKYVLiAccJSmCwih4LnE2q',
+                    'type': 1,
+                    'type_hex': '0000000000000001'
+                  },
+                  {
+                    'currency': 'XRP',
+                    'type': 16,
+                    'type_hex': '0000000000000010'
+                  }
+                ]
+              ],
+              'SendMax': {
+                'currency': 'USD',
+                'issuer': 'rweYz56rfmQ98cAdRaeTxQS9wVMGnrdsFp',
+                'value': '0.6275558355'
+              },
+              'Sequence': 842,
+              'SigningPubKey': '0379F17CFA0FFD7518181594BE69FE9A10471D6DE1F4055C6D2746AFD6CF89889E',
+              'TransactionType': 'Payment',
+              'TxnSignature': '3045022100D55ED1953F860ADC1BC5CD993ABB927F48156ACA31C64737865F4F4FF6D015A80220630704D2BD09C8E99F26090C25F11B28F5D96A1350454402C2CED92B39FFDBAF',
+              'hash': 'B521424226FC100A2A802FE20476A5F8426FD3F720176DC5CCCE0D75738CC208'
+            },
+            # tx3-binary.json
+            '1200002200000000240000034A201B009717BE61400000000098968068400000000000000C69D4564B964A845AC0000000000000000000000000555344000000000069D33B18D53385F8A3185516C2EDA5DEDB8AC5C673210379F17CFA0FFD7518181594BE69FE9A10471D6DE1F4055C6D2746AFD6CF89889E74473045022100D55ED1953F860ADC1BC5CD993ABB927F48156ACA31C64737865F4F4FF6D015A80220630704D2BD09C8E99F26090C25F11B28F5D96A1350454402C2CED92B39FFDBAF811469D33B18D53385F8A3185516C2EDA5DEDB8AC5C6831469D33B18D53385F8A3185516C2EDA5DEDB8AC5C6F9EA7C06636C69656E747D077274312E312E31E1F1011201F3B1997562FD742B54D4EBDEA1D6AEA3D4906B8F100000000000000000000000000000000000000000FF014B4E9C06F24296074F7BC48F92A97916C6DC5EA901DD39C650A96EDA48334E70CC4A85B8B2E8502CD310000000000000000000000000000000000000000000',
+        ),
     )
 )
 # yapf: enable
