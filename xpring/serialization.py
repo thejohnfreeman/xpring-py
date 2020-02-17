@@ -81,16 +81,18 @@ def serialize_amount(amount: Amount) -> bytes:
     64 bits of unsigned value; 160 bit currency code; 160 bit issuer
     AccountID.
     """
-    if type(amount) is str:
+    if isinstance(amount, str):
         value = int(amount)
         sign = int(value > 0)
         magnitude = abs(value)
         assert magnitude <= 10**17
         return to_bytes(sign << 62 | magnitude, 8)
-    if type(amount) is dict:
+    if isinstance(amount, dict):
         value_bytes = IssuedAmount(amount['value']).to_bytes()
         currency_bytes = serialize_currency(amount['currency'])
-        address_bytes = DEFAULT_CODEC.decode_address(amount['issuer'])
+        address_bytes = DEFAULT_CODEC.decode_address(
+            t.cast(Address, amount['issuer'])
+        )
         return value_bytes + currency_bytes + address_bytes
     raise ValueError('Amount must be `str` or `{value, currency, issuer}`')
 
@@ -267,7 +269,7 @@ def deserialize_amount(scanner: Scanner) -> Amount:
     # TODO: Deserialize a floating point number.
     value = scanner.take(8).hex()
     currency = deserialize_currency(scanner)
-    issuer = DEFAULT_CODEC.encode_address(scanner.take(20))
+    issuer = DEFAULT_CODEC.encode_address(t.cast(AccountId, scanner.take(20)))
     return {'value': value, 'currency': currency, 'issuer': issuer}
 
 
