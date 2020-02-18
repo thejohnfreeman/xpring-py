@@ -69,7 +69,10 @@ with (
     'submodules/ripple-binary-codec/test/fixtures/codec-fixtures.json'
 ).open() as file:
     table = json.load(file)
-for _, fixtures in table.items():
+for category, fixtures in table.items():
+    # The ledgerData test uses undefined fields. Skip it.
+    if category == 'ledgerData':
+        continue
     for fixture in fixtures:
         TRANSACTION_EXAMPLES.append((fixture['json'], fixture['binary']))
 
