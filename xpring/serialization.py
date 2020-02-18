@@ -4,6 +4,7 @@ Derived from the sample code on the developer portal:
 https://github.com/ripple/xrpl-dev-portal/blob/57dd03d9a1ff610c12c692ead93a6acb06cfe950/content/_code-samples/tx-serialization/serialize.py
 """
 
+from decimal import getcontext, Decimal
 import json
 import pkg_resources
 import re
@@ -13,8 +14,7 @@ import typing_extensions as tex
 
 from xpring.bits import from_bytes, to_bytes
 from xpring.codec import DEFAULT_CODEC
-from xpring.issued_amount import IssuedAmount
-from xpring.types import AccountId, Address, Amount
+from xpring.types import AccountId, Address, Amount, NonXrpAmount
 
 
 def field_id(type_code, field_code):
@@ -90,13 +90,70 @@ def serialize_amount(amount: Amount) -> bytes:
         assert magnitude <= 10**17
         return to_bytes(sign << 62 | magnitude, 8)
     if isinstance(amount, dict):
-        value_bytes = IssuedAmount(amount['value']).to_bytes()
+        value_bytes = serialize_amount_non_xrp(amount['value'])
         currency_bytes = serialize_currency(amount['currency'])
         address_bytes = DEFAULT_CODEC.decode_address(
             t.cast(Address, amount['issuer'])
         )
         return value_bytes + currency_bytes + address_bytes
     raise ValueError('Amount must be `str` or `{value, currency, issuer}`')
+
+
+"""
+Zero has a special-case canonical format:
+- one "not XRP" bit set to 1
+- one sign bit set to 0 (for "negative")
+- sixty-two value bits set to 0
+"""
+CANONICAL_ZERO = to_bytes(1 << 63, 8)
+
+MANTISSA_MIN = 10**15
+MANTISSA_MAX = 10**16 - 1
+EXPONENT_MIN = -96
+EXPONENT_MAX = 80
+
+
+def serialize_amount_non_xrp(value: str) -> bytes:
+    context = getcontext()
+    context.prec = 15
+    context.Emin = EXPONENT_MIN
+    context.Emax = EXPONENT_MAX
+
+    decimal = Decimal(value)
+
+    if decimal.is_zero():
+        return CANONICAL_ZERO
+
+    # Convert components to integers.
+    sign, digits, exponent = decimal.as_tuple()
+    mantissa = int(''.join(str(d) for d in digits))
+
+    # Canonicalize to expected range.
+    while mantissa < MANTISSA_MIN and exponent > EXPONENT_MIN:
+        mantissa *= 10
+        exponent -= 1
+
+    while mantissa > MANTISSA_MAX:
+        if exponent >= EXPONENT_MAX:
+            raise ValueError('amount overflow')
+        mantissa //= 10
+        exponent += 1
+
+    if exponent < EXPONENT_MIN or mantissa < MANTISSA_MIN:
+        # Round to zero.
+        return CANONICAL_ZERO
+
+    if exponent > EXPONENT_MAX or mantissa > MANTISSA_MAX:
+        raise ValueError('amount overflow')
+
+    # Serialize to bytes.
+    bits = 1 << 63  # "not XRP" bit
+    if sign == 0:
+        bits |= 1 << 62  # "is positive" bit
+    bits |= ((exponent + 97) << 54)  # 8 bits of exponent
+    bits |= mantissa  # 54 bits of mantissa
+
+    return to_bytes(bits, 8)
 
 
 def serialize_array(array: t.Iterable) -> bytes:
