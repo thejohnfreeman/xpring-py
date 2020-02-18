@@ -318,7 +318,7 @@ def serialize_uint32(value: int) -> bytes:
 
 
 def serialize_uint64(value: int) -> bytes:
-    return serialize_uint(64, value)
+    return serialize_hash(64, value)
 
 
 def serialize_vector256(digests: t.Iterable[str]) -> bytes:
@@ -593,7 +593,7 @@ def deserialize_uint32(scanner: Scanner) -> int:
 
 
 def deserialize_uint64(scanner: Scanner) -> int:
-    return deserialize_uint(64, scanner)
+    return deserialize_hash(64, scanner)
 
 
 def deserialize_vector256(scanner: Scanner) -> t.List[str]:
