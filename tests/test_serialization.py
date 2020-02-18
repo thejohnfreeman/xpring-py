@@ -170,16 +170,15 @@ def without(dictionary, keys):
 
 @pytest.mark.parametrize(*TRANSACTION_EXAMPLES)
 def test_serialize_transaction(transaction, blob_hex):
-    blob = serialization.serialize_object(transaction, mark=False)
+    blob = serialization.serialize_transaction(transaction)
     assert blob.hex().upper() == blob_hex
 
 
-@pytest.mark.skip
 @pytest.mark.parametrize(*TRANSACTION_EXAMPLES)
 def test_deserialize_transaction(transaction, blob_hex):
     scanner = serialization.Scanner(bytes.fromhex(blob_hex))
     expected = without(transaction, ['hash'])
-    assert serialization.deserialize_object(scanner) == expected
+    assert serialization.deserialize_transaction(scanner) == expected
 
 
 # yapf: disable

@@ -102,7 +102,7 @@ def serialize_amount(amount: Amount) -> bytes:
 def serialize_array(array: t.Iterable) -> bytes:
     """Serialize an array of objects."""
     return b''.join(
-        serialize_object(item, mark=False) for item in array
+        serialize_object(item, terminate=False) for item in array
     ) + ARRAY_END_MARKER
 
 
@@ -182,7 +182,7 @@ def field_key(field):
 
 
 def serialize_object(
-    object_: dict, signing: bool = False, mark: bool = True
+    object_: t.Mapping, signing: bool = False, terminate: bool = True
 ) -> bytes:
     fields = [FIELDS_BY_NAME[name] for name in object_.keys()]
     fields = [
@@ -194,7 +194,7 @@ def serialize_object(
     blob = bytearray()
     for field in fields:
         blob.extend(serialize_field(field, object_[field['name']]))
-    if mark:
+    if terminate:
         blob.extend(OBJECT_END_MARKER)
     return blob
 
@@ -229,6 +229,10 @@ def serialize_step(step: t.Mapping) -> bytes:
     return blob
 
 
+def serialize_transaction(transaction: t.Mapping) -> bytes:
+    return serialize_object(transaction, terminate=False)
+
+
 def serialize_transaction_type(name: str) -> bytes:
     return to_bytes(TRANSACTION_TYPES_BY_NAME[name], 2)
 
@@ -257,7 +261,7 @@ def serialize_uint64(value: int) -> bytes:
 class Scanner:
 
     def __init__(self, stream: bytes) -> None:
-        self.stream = stream
+        self.stream = bytearray(stream)
         self.cursor = 0
 
     @property
@@ -267,7 +271,13 @@ class Scanner:
     def __bool__(self):
         return self.inexhausted
 
-    def peek1(self) -> int:
+    def extend(self, bite) -> None:
+        self.stream.extend(bite)
+
+    def peek(self, length) -> bytes:
+        return self.stream[self.cursor:self.cursor + length]
+
+    def bite(self) -> int:
         return self.stream[self.cursor]
 
     def skip(self, length: int) -> None:
@@ -308,7 +318,7 @@ def deserialize_account_id(scanner: Scanner) -> Address:
 
 
 def deserialize_amount(scanner: Scanner) -> Amount:
-    byte1 = scanner.peek1()
+    byte1 = scanner.bite()
     # Most-significant bit is the format bit. 1 means "is not XRP".
     if not byte1 & (1 << 7):
         # Second most-significant bit is the sign bit. 1 means "is positive".
@@ -316,16 +326,46 @@ def deserialize_amount(scanner: Scanner) -> Amount:
         # Format bit is already cleared, but clear both top bits regardless.
         magnitude = from_bytes(scanner.take(8)) & ~(0b11 << 62)
         return str(sign * magnitude)
-    # TODO: Deserialize a floating point number.
-    value = scanner.take(8).hex()
+    value = deserialize_amount_non_xrp(scanner)
     currency = deserialize_currency(scanner)
     issuer = DEFAULT_CODEC.encode_address(t.cast(AccountId, scanner.take(20)))
     return {'value': value, 'currency': currency, 'issuer': issuer}
 
 
+def deserialize_amount_non_xrp(scanner: Scanner) -> str:
+    bits = from_bytes(scanner.take(8))
+    not_xrp_bit = bits & (1 << 63)
+    assert not_xrp_bit
+    sign_bit = bits & (1 << 62)
+    unsigned_exponent = ((bits >> 54) & 0xFF)
+    mantissa = bits & ((1 << 54) - 1)
+    if not sign_bit and not unsigned_exponent and not mantissa:
+        return '0'
+    value = str(mantissa)
+    exponent = unsigned_exponent - 97
+    if exponent > 0:
+        padding = '0' * exponent
+        value += padding
+    else:
+        places = -exponent
+        if places > len(value):
+            padding = '0' * (places - len(value))
+            value = '0.' + padding + value
+        else:
+            value = value[:exponent] + '.' + value[exponent:]
+            if value[0] == '.':
+                value = '0' + value
+        value = value.rstrip('0')
+        if value[-1] == '.':
+            value = value[:-1]
+    if not sign_bit:
+        value = '-' + value
+    return value
+
+
 def deserialize_array(scanner: Scanner) -> t.List:
     array = []
-    while scanner.peek1() != ARRAY_END_MARKER:
+    while scanner.peek(1) != ARRAY_END_MARKER:
         key, value = deserialize_field(scanner)
         array.append({key: value})
     scanner.skip(1)
@@ -340,6 +380,8 @@ def deserialize_currency(scanner: Scanner) -> str:
     blob = scanner.take(160 // 8)
     # If the first 8 bits are 0x00, it is a standard currency code.
     # https://xrpl.org/currency-formats.html#standard-currency-codes
+    if blob == bytes(20):
+        return 'XRP'
     if not blob[0]:
         return blob[12:15].decode('ASCII')
     # Otherwise, it is a nonstandard currency code.
@@ -393,7 +435,7 @@ def deserialize_hash256(scanner: Scanner) -> str:
 
 def deserialize_object(scanner: Scanner) -> t.Mapping:
     object_ = {}
-    while scanner.peek1() != OBJECT_END_MARKER:
+    while scanner.peek(1) != OBJECT_END_MARKER:
         key, value = deserialize_field(scanner)
         object_[key] = value
     scanner.skip(1)
@@ -404,7 +446,9 @@ Step = tex.TypedDict(
     'Step', {
         'account': Address,
         'currency': str,
-        'issuer': Address
+        'issuer': Address,
+        'type': int,
+        'type_hex': str,
     },
     total=False
 )
@@ -414,35 +458,42 @@ PathSet = t.Collection[Path]
 
 def deserialize_path(scanner: Scanner) -> Path:
     path = []
-    while scanner.peek1() not in (PATH_END_MARKER, PATHSET_END_MARKER):
+    while scanner.peek(1) not in (PATH_END_MARKER, PATHSET_END_MARKER):
         path.append(deserialize_step(scanner))
-    if scanner.peek1() == PATH_END_MARKER:
+    if scanner.peek(1) == PATH_END_MARKER:
         scanner.skip(1)
     return path
 
 
 def deserialize_pathset(scanner: Scanner) -> PathSet:
     pathset = []
-    while scanner.peek1() != PATHSET_END_MARKER:
+    while scanner.peek(1) != PATHSET_END_MARKER:
         pathset.append(deserialize_path(scanner))
     scanner.skip(1)
     return pathset
 
 
 def deserialize_step(scanner: Scanner) -> Step:
-    header = scanner.take1()
+    type_byte = scanner.take1()
     step = t.cast(Step, {})
-    if header & 0x01:
+    if type_byte & 0x01:
         step['account'] = DEFAULT_CODEC.encode_address(
             t.cast(AccountId, scanner.take(20))
         )
-    if header & 0x10:
+    if type_byte & 0x10:
         step['currency'] = deserialize_currency(scanner)
-    if header & 0x20:
+    if type_byte & 0x20:
         step['issuer'] = DEFAULT_CODEC.encode_address(
             t.cast(AccountId, scanner.take(20))
         )
+    step['type'] = type_byte
+    step['type_hex'] = to_bytes(type_byte, 8).hex().upper()
     return step
+
+
+def deserialize_transaction(scanner: Scanner) -> t.Mapping:
+    scanner.extend(OBJECT_END_MARKER)
+    return deserialize_object(scanner)
 
 
 def deserialize_transaction_type(scanner: Scanner) -> str:
