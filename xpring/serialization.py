@@ -212,23 +212,29 @@ def serialize_field(field, value):
     return id_bytes + value_bytes
 
 
-def serialize_hash(bits: int, value: str) -> bytes:
-    blob = bytes.fromhex(value)
+def serialize_hash(bits: int, digest: str) -> bytes:
+    blob = bytes.fromhex(digest)
     if len(blob) * 8 != bits:
-        raise ValueError(f'expected {bits} bits: {value}')
+        raise ValueError(f'expected {bits} bits: {digest}')
     return blob
 
 
-def serialize_hash128(value: str) -> bytes:
-    return serialize_hash(128, value)
+def serialize_hash128(digest: str) -> bytes:
+    return serialize_hash(128, digest)
 
 
-def serialize_hash160(value: str) -> bytes:
-    return serialize_hash(160, value)
+def serialize_hash160(digest: str) -> bytes:
+    return serialize_hash(160, digest)
 
 
-def serialize_hash256(value: str) -> bytes:
-    return serialize_hash(256, value)
+def serialize_hash256(digest: str) -> bytes:
+    return serialize_hash(256, digest)
+
+
+def serialize_ledger_entry_type(name: str) -> bytes:
+    type_code = LEDGER_ENTRY_TYPES_BY_NAME[name]
+    assert type_code >= 0
+    return serialize_uint16(type_code)
 
 
 def field_key(field):
@@ -490,6 +496,11 @@ def deserialize_hash256(scanner: Scanner) -> str:
     return deserialize_hash(256, scanner)
 
 
+def deserialize_ledger_entry_type(scanner: Scanner) -> str:
+    type_code = deserialize_uint16(scanner)
+    return LEDGER_ENTRY_TYPES_BY_CODE[type_code]
+
+
 def deserialize_object(scanner: Scanner) -> t.Mapping:
     object_ = {}
     while scanner.peek(1) != OBJECT_END_MARKER:
@@ -598,10 +609,12 @@ CODECS = {
 _DEFINITIONS = json.load(
     pkg_resources.resource_stream('xpring', 'definitions.json')
 )
-TRANSACTION_TYPES_BY_NAME = _DEFINITIONS['TRANSACTION_TYPES']
-TRANSACTION_TYPES_BY_CODE = {
-    v: k for (k, v) in TRANSACTION_TYPES_BY_NAME.items()
+LEDGER_ENTRY_TYPES_BY_NAME = _DEFINITIONS['LEDGER_ENTRY_TYPES']
+LEDGER_ENTRY_TYPES_BY_CODE = {
+    v: k for k, v in LEDGER_ENTRY_TYPES_BY_NAME.items()
 }
+TRANSACTION_TYPES_BY_NAME = _DEFINITIONS['TRANSACTION_TYPES']
+TRANSACTION_TYPES_BY_CODE = {v: k for k, v in TRANSACTION_TYPES_BY_NAME.items()}
 TYPES_BY_NAME = _DEFINITIONS['TYPES']
 TYPES_BY_CODE = {v: k for (k, v) in TYPES_BY_NAME.items()}
 FIELDS_BY_NAME = {k: v for (k, v) in _DEFINITIONS['FIELDS']}
@@ -617,6 +630,8 @@ for field_name, field in FIELDS_BY_NAME.items():
         field['serialize'], field['deserialize'] = CODECS[type_name]
 FIELDS_BY_NAME['TransactionType']['serialize'] = serialize_transaction_type
 FIELDS_BY_NAME['TransactionType']['deserialize'] = deserialize_transaction_type
+FIELDS_BY_NAME['LedgerEntryType']['serialize'] = serialize_ledger_entry_type
+FIELDS_BY_NAME['LedgerEntryType']['deserialize'] = deserialize_ledger_entry_type
 FIELDS_BY_ID = {v['key']: v for v in FIELDS_BY_NAME.values() if 'key' in v}
 PATH_END_MARKER = b'\xFF'
 PATHSET_END_MARKER = b'\x00'
