@@ -317,7 +317,7 @@ def serialize_uint32(value: int) -> bytes:
     return serialize_uint(32, value)
 
 
-def serialize_uint64(value: int) -> bytes:
+def serialize_uint64(value: str) -> bytes:
     return serialize_hash(64, value)
 
 
@@ -592,7 +592,7 @@ def deserialize_uint32(scanner: Scanner) -> int:
     return deserialize_uint(32, scanner)
 
 
-def deserialize_uint64(scanner: Scanner) -> int:
+def deserialize_uint64(scanner: Scanner) -> str:
     return deserialize_hash(64, scanner)
 
 
