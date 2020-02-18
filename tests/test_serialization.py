@@ -76,6 +76,10 @@ for category, fixtures in table.items():
     for fixture in fixtures:
         TRANSACTION_EXAMPLES.append((fixture['json'], fixture['binary']))
 
+# There are more tests here, but I would have to copy them by hand, and
+# I think the ripple-binary-codec suite already gives us excellent coverage.
+# https://github.com/ximinez/ripple-offline-tool/blob/master/src/test/KnownTestData.h
+
 TRANSACTION_PARAMETERS = (('transaction', 'blob_hex'), TRANSACTION_EXAMPLES)
 
 
