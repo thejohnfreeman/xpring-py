@@ -321,6 +321,11 @@ def serialize_uint64(value: int) -> bytes:
     return serialize_uint(64, value)
 
 
+def serialize_vector256(digests: t.Iterable[str]) -> bytes:
+    blob = b''.join(serialize_hash256(digest) for digest in digests)
+    return vl_encode(blob)
+
+
 class Scanner:
 
     def __init__(self, stream: bytes) -> None:
@@ -333,6 +338,9 @@ class Scanner:
 
     def __bool__(self):
         return self.inexhausted
+
+    def __len__(self):
+        return len(self.stream) - self.cursor
 
     def extend(self, bite) -> None:
         self.stream.extend(bite)
@@ -588,6 +596,17 @@ def deserialize_uint64(scanner: Scanner) -> int:
     return deserialize_uint(64, scanner)
 
 
+def deserialize_vector256(scanner: Scanner) -> t.List[str]:
+    blob = vl_decode(scanner)
+    subscanner = Scanner(blob)
+    expected_length = len(subscanner) // (256 // 8)
+    digests = []
+    while subscanner:
+        digests.append(deserialize_hash256(subscanner))
+    assert len(digests) == expected_length
+    return digests
+
+
 CODECS = {
     'AccountID': (serialize_account_id, deserialize_account_id),
     'Amount': (serialize_amount, deserialize_amount),
@@ -602,7 +621,7 @@ CODECS = {
     'UInt16': (serialize_uint16, deserialize_uint16),
     'UInt32': (serialize_uint32, deserialize_uint32),
     'UInt64': (serialize_uint64, deserialize_uint64),
-    'Vector256': (None, None),
+    'Vector256': (serialize_vector256, deserialize_vector256),
 }
 
 # TODO: Consider lazy initialization.

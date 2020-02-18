@@ -64,6 +64,15 @@ for i in range(3):
     blob_hex = (prefix / f'tx{n}-binary.txt').read_text().rstrip()
     TRANSACTION_EXAMPLES.append((transaction, blob_hex))
 
+with (
+    project_dir /
+    'submodules/ripple-binary-codec/test/fixtures/codec-fixtures.json'
+).open() as file:
+    table = json.load(file)
+for _, fixtures in table.items():
+    for fixture in fixtures:
+        TRANSACTION_EXAMPLES.append((fixture['json'], fixture['binary']))
+
 TRANSACTION_PARAMETERS = (('transaction', 'blob_hex'), TRANSACTION_EXAMPLES)
 
 
