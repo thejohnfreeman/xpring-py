@@ -7,3 +7,6 @@
 [submodule "submodules/xrpl-dev-portal"]
 	path = submodules/xrpl-dev-portal
 	url = https://github.com/ripple/xrpl-dev-portal
+[submodule "submodules/rippled"]
+	path = submodules/rippled
+	url = https://github.com/ripple/rippled.git
