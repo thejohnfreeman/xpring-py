@@ -1,11 +1,14 @@
 import fileinput
 import glob
-from invoke import task
 import multiprocessing
+import os
 from pathlib import Path
 import re
 import shutil
 import sys
+import tempfile
+
+from invoke import task
 import toml
 
 pty = sys.stdout.isatty()
@@ -16,6 +19,7 @@ def get_package_name() -> str:
     return pyproject['tool']['poetry']['name']
 
 
+# We can assume Python is in the environment, but not sed.
 def substitute(files: str, pattern: str, replacement: str):
     """A cross-platform approximation of `sed -i -E s/pattern/replacement/ files`."""
     with fileinput.input(
@@ -31,23 +35,45 @@ def proto(c):
     # so we use this workaround.
     # https://github.com/protocolbuffers/protobuf/issues/1491
 
-    src_dir = 'submodules/xpring-common-protocol-buffers/proto'
-    dst_dir = 'xpring/proto'
+    import_dir = Path('submodules/rippled/src/ripple/proto')
+    # The sources *must* reside within the import directory.
+    # When protoc runs, it recreates the relative directory structure.
+    # In other words, the source `{import_dir}/rpc/v1/tx.proto`
+    # will generate a source `{dst_dir}/rpc/v1/tx_pb2.py`.
+    source_dir = Path('submodules/rippled/src/ripple/proto/rpc/v1')
+    dst_dir = Path('xpring/proto/v1')
 
-    Path(dst_dir).mkdir(exist_ok=True)
-    c.run(
-        f'python -m grpc_tools.protoc --proto_path={src_dir} '
-        f'--python_out={dst_dir} '
-        f'--grpc_python_out={dst_dir} '
-        f'--mypy_out=quiet:{dst_dir} '
-        f'{src_dir}/*.proto'
-    )
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
 
-    # We can assume Python is in the environment, but not sed.
-    # Change absolute imports of sibling protobufs to relative imports
-    # because the protobufs are nested under package `xpring.proto`.
-    substitute(f'{dst_dir}/*.py', '^import.*_pb2', 'from . \g<0>')
-    substitute(f'{dst_dir}/*.pyi', '^from\s+(\S+_pb2)', 'from .\g<1>')
+        c.run(
+            f'python -m grpc_tools.protoc --proto_path={import_dir} '
+            f'--python_out={tmp_dir} '
+            f'--grpc_python_out={tmp_dir} '
+            f'--mypy_out=quiet:{tmp_dir} '
+            f'{source_dir}/*.proto'
+        )
+
+        prefix = source_dir.relative_to(import_dir)
+        package_prefix = str(prefix).replace(os.sep, '.')
+
+        # Change absolute imports of sibling protobufs to relative imports
+        # because the protobufs are nested under package `xpring.proto.v1`.
+        # prefix empty: import type_pb2
+        substitute(f'{tmp_dir}/**/*.py', '^import.*_pb2', 'from . \g<0>')
+        # prefix not empty: from package.prefix import type_pb2
+        substitute(f'{tmp_dir}/**/*.py', f'^from\s+{package_prefix}', 'from .')
+        # These next two substitutions interact. They must be executed together.
+        # prefix not empty: from package.prefix.type_pb2 import
+        substitute(
+            f'{tmp_dir}/**/*.pyi', f'^from\s+{package_prefix}\.', 'from '
+        )
+        # prefix empty: from type_pb2 import
+        substitute(f'{tmp_dir}/**/*.pyi', '^from\s+(\S+_pb2)', 'from .\g<1>')
+
+        Path(dst_dir).mkdir(exist_ok=True)
+        (tmp_dir / prefix).rename(dst_dir)
+        (dst_dir / '__init__.py').touch()
 
 
 @task
