@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-import xpring.serialization as serialization
+from xpring import hashes, serialization
 
 # yapf: disable
 TRANSACTION_EXAMPLES = [
@@ -98,6 +98,15 @@ def test_deserialize_transaction(transaction, blob_hex):
     scanner = serialization.Scanner(bytes.fromhex(blob_hex))
     expected = without(transaction, ['hash'])
     assert serialization.deserialize_transaction(scanner) == expected
+
+
+@pytest.mark.parametrize(*TRANSACTION_PARAMETERS)
+def test_hash_transaction(transaction, blob_hex):
+    if 'hash' not in transaction:
+        return
+    blob = serialization.PREFIX_TRANSACTION_ID + bytes.fromhex(blob_hex)
+    digest = hashes.sha512half(blob)
+    assert digest.hex().upper() == transaction['hash']
 
 
 # yapf: disable

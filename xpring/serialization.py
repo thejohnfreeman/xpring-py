@@ -14,7 +14,7 @@ import typing_extensions as tex
 
 from xpring.bits import from_bytes, to_bytes
 from xpring.codec import DEFAULT_CODEC
-from xpring.types import AccountId, Address, Amount, NonXrpAmount
+from xpring.types import AccountId, Address, Amount, NonXrpAmount, Transaction
 
 
 def field_id(type_code, field_code):
@@ -259,7 +259,7 @@ def serialize_object(
         blob.extend(serialize_field(field, object_[field['name']]))
     if terminate:
         blob.extend(OBJECT_END_MARKER)
-    return blob
+    return bytes(blob)
 
 
 def serialize_path(path: t.Collection) -> bytes:
@@ -289,11 +289,13 @@ def serialize_step(step: t.Mapping) -> bytes:
     if 'issuer' in step:
         blob[0] |= 0x20
         blob.extend(DEFAULT_CODEC.decode_address(step['issuer']))
-    return blob
+    return bytes(blob)
 
 
-def serialize_transaction(transaction: t.Mapping) -> bytes:
-    return serialize_object(transaction, terminate=False)
+def serialize_transaction(
+    transaction: Transaction, signing: bool = False
+) -> bytes:
+    return serialize_object(transaction, signing=signing, terminate=False)
 
 
 def serialize_transaction_type(name: str) -> bytes:
@@ -567,7 +569,7 @@ def deserialize_step(scanner: Scanner) -> Step:
     return step
 
 
-def deserialize_transaction(scanner: Scanner) -> t.Mapping:
+def deserialize_transaction(scanner: Scanner) -> Transaction:
     scanner.extend(OBJECT_END_MARKER)
     return deserialize_object(scanner)
 
@@ -656,3 +658,6 @@ PATH_END_MARKER = b'\xFF'
 PATHSET_END_MARKER = b'\x00'
 ARRAY_END_MARKER = FIELDS_BY_NAME['ArrayEndMarker']['id']
 OBJECT_END_MARKER = FIELDS_BY_NAME['ObjectEndMarker']['id']
+
+# https://github.com/ripple/rippled/blob/develop/src/ripple/protocol/impl/HashPrefix.cpp
+PREFIX_TRANSACTION_ID = b'TXN\x00'
