@@ -1,11 +1,8 @@
 import typing as t
 
 Decoder = t.Callable[[str, int], bytes]
+Encoder = t.Callable[[int, int, int], bytes]
 
-
-def sigdecode_der(signature: str, order: int) -> bytes:
-    ...
-
-
-def sigencode_der_canonize(r: int, s: int, order: int):
-    ...
+sigdecode_der: Decoder
+sigencode_string: Encoder
+sigencode_der_canonize: Encoder

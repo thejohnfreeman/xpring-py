@@ -26,9 +26,9 @@ def test_determinism(
 
     signing_key_bytes = bytes.fromhex(signing_key_hex)
     signing_key = module.make_signing_key(signing_key_bytes)
-    digest_bytes = bytes.fromhex(message_digest_hex)
-    signature1_hex = module.sign(signing_key, digest_bytes).hex()
-    signature2_hex = module.sign(signing_key, digest_bytes).hex()
+    message_digest_bytes = bytes.fromhex(message_digest_hex)
+    signature1_hex = module.sign(signing_key, message_digest_bytes).hex()
+    signature2_hex = module.sign(signing_key, message_digest_bytes).hex()
     assert signature1_hex == signature2_hex
 
 
@@ -52,9 +52,9 @@ def test_verify(
     signing_key_bytes = bytes.fromhex(signing_key_hex)
     signing_key = module.make_signing_key(signing_key_bytes)
     verifying_key = module.derive_verifying_key(signing_key)
-    digest_bytes = bytes.fromhex(message_digest_hex)
+    message_digest_bytes = bytes.fromhex(message_digest_hex)
     signature_bytes = bytes.fromhex(signature_hex)
-    assert module.verify(verifying_key, digest_bytes, signature_bytes)
+    assert module.verify(verifying_key, message_digest_bytes, signature_bytes)
 
 
 @pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
@@ -70,9 +70,11 @@ def test_agreement(
     signing_key_bytes = bytes.fromhex(signing_key_hex)
     signing_key1 = module1.make_signing_key(signing_key_bytes)
     verifying_key1 = module1.derive_verifying_key(signing_key1)
-    pem1 = module1.export_verifying_key(verifying_key1)
-    digest_bytes = bytes.fromhex(message_digest_hex)
-    signature_bytes1 = module1.sign(signing_key1, digest_bytes)
+    pem_bytes1 = module1.export_verifying_key(verifying_key1)
+    message_digest_bytes = bytes.fromhex(message_digest_hex)
+    signature_bytes1 = module1.sign(signing_key1, message_digest_bytes)
 
-    verifying_key2 = module2.import_verifying_key(pem1)
-    assert module2.verify(verifying_key2, digest_bytes, signature_bytes1)
+    verifying_key2 = module2.import_verifying_key(pem_bytes1)
+    assert module2.verify(
+        verifying_key2, message_digest_bytes, signature_bytes1
+    )

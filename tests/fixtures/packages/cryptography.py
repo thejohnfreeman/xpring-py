@@ -10,8 +10,11 @@ from xpring.hashes import IdentityHash
 
 register_interface(hashes.HashAlgorithm)(IdentityHash)
 
+SigningKey = ec.EllipticCurvePrivateKey
+VerifyingKey = ec.EllipticCurvePublicKey
 
-def make_signing_key(signing_key_bytes: bytes) -> t.Any:
+
+def make_signing_key(signing_key_bytes: bytes) -> SigningKey:
     return ec.derive_private_key(
         int.from_bytes(signing_key_bytes, byteorder='big'),
         ec.SECP256K1(),
@@ -19,17 +22,17 @@ def make_signing_key(signing_key_bytes: bytes) -> t.Any:
     )
 
 
-def sign(signing_key: t.Any, digest_bytes: bytes) -> bytes:
+def sign(signing_key: SigningKey, message_digest_bytes: bytes) -> bytes:
     # https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#elliptic-curve-signature-algorithms
     prehashed = utils.Prehashed(IdentityHash())
-    return signing_key.sign(digest_bytes, ec.ECDSA(prehashed))
+    return signing_key.sign(message_digest_bytes, ec.ECDSA(prehashed))
 
 
-def derive_verifying_key(signing_key: t.Any) -> t.Any:
+def derive_verifying_key(signing_key: SigningKey) -> VerifyingKey:
     return signing_key.public_key()
 
 
-def export_verifying_key(verifying_key: t.Any) -> bytes:
+def export_verifying_key(verifying_key: VerifyingKey) -> bytes:
     # https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#serialization
     return verifying_key.public_bytes(
         encoding=serialization.Encoding.PEM,
@@ -37,16 +40,22 @@ def export_verifying_key(verifying_key: t.Any) -> bytes:
     )
 
 
-def import_verifying_key(pem: bytes) -> t.Any:
+def import_verifying_key(pem_bytes: bytes) -> VerifyingKey:
     # https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#key-loading
-    return serialization.load_pem_public_key(pem, backend=default_backend())
+    return serialization.load_pem_public_key(
+        pem_bytes, backend=default_backend()
+    )
 
 
-def verify(verifying_key: t.Any, digest_bytes: bytes, signature: bytes) -> bool:
+def verify(
+    verifying_key: VerifyingKey,
+    message_digest_bytes: bytes,
+    signature_bytes: bytes,
+) -> bool:
     # https://cryptography.io/en/latest/hazmat/primitives/asymmetric/ec/#elliptic-curve-signature-algorithms
     verifying_key.verify(
-        signature,
-        digest_bytes,
+        signature_bytes,
+        message_digest_bytes,
         ec.ECDSA(utils.Prehashed(IdentityHash())),
     )
     return True
