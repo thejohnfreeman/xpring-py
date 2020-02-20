@@ -17,7 +17,7 @@ SIGNATURE_EXAMPLES = (
             '30440220692c01edf8aeab271df3ed4e8d57a170f014f8f9d65031aac28b5e1840acfb5602205075f9d1fdbf5079ee052e5f3572d518b3594ef49582899ec44d065f71a55192',
             id='39dfc6',
         ),
-        # https://github.com/ripple/ripple-keypairs/blob/master/test/fixtures/api.json#L2-L11
+        # https://github.com/ripple/ripple-keypairs/blob/master/test/fixtures/api.json#L2-L15
         pytest.param(
             'd78b9735c3f26501c7337b8a5727fd53a6efdbc6aa55984f098488561f985e23',
             # sha512half(b'test message')
