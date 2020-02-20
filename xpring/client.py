@@ -11,7 +11,12 @@ from xpring.proto.v1.fee_pb2 import (
     GetFeeResponse,
 )
 from xpring.proto.v1.ledger_objects_pb2 import AccountRoot
+from xpring.proto.v1.submit_pb2 import (
+    SubmitTransactionRequest,
+    SubmitTransactionResponse,
+)
 from xpring.proto.v1.xrp_ledger_pb2_grpc import XRPLedgerAPIServiceStub
+from xpring.serialization import serialize_transaction
 from xpring.types import Address, SignedTransaction
 
 
@@ -33,3 +38,10 @@ class Client:
     def get_fee(self) -> GetFeeResponse:
         request = GetFeeRequest()
         return self.grpc_client.GetFee(request)
+
+    def submit(
+        self, signed_transaction: SignedTransaction
+    ) -> SubmitTransactionResponse:
+        blob = serialize_transaction(signed_transaction)
+        request = SubmitTransactionRequest(signed_transaction=blob)
+        return self.grpc_client.SubmitTransaction(request)

@@ -18,9 +18,9 @@ def derive_account_id(public_key: PublicKey) -> AccountId:
 @dataclass
 class KeyPair:
     seed: Seed
+    algorithm: SigningAlgorithm
     private_key: PrivateKey
     public_key: PublicKey
-    algorithm: SigningAlgorithm
 
     @classmethod
     def from_encoded_seed(cls, encoded_seed: EncodedSeed) -> 'KeyPair':
@@ -31,7 +31,7 @@ class KeyPair:
         signature = algorithm.sign(message, private_key)
         if not algorithm.verify(message, signature, public_key):
             raise AssertionError('public key does not verify private key')
-        return cls(seed, private_key, public_key, algorithm)
+        return cls(seed, algorithm, private_key, public_key)
 
     @property
     def account_id(self) -> AccountId:

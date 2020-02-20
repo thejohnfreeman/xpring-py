@@ -661,3 +661,4 @@ OBJECT_END_MARKER = FIELDS_BY_NAME['ObjectEndMarker']['id']
 
 # https://github.com/ripple/rippled/blob/develop/src/ripple/protocol/impl/HashPrefix.cpp
 PREFIX_TRANSACTION_ID = b'TXN\x00'
+PREFIX_TRANSACTION_SIGNATURE = b'STX\x00'

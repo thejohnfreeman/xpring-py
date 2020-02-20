@@ -2,7 +2,12 @@ import typing as t
 
 from xpring.hashes import sha512half
 from xpring.key_pair import KeyPair
-from xpring.serialization import PREFIX_TRANSACTION_ID, serialize_transaction
+from xpring.serialization import (
+    PREFIX_TRANSACTION_ID,
+    PREFIX_TRANSACTION_SIGNATURE,
+    serialize_transaction,
+)
+from xpring.algorithms.signing import SigningAlgorithm
 from xpring.types import (
     AccountId,
     Address,
@@ -27,6 +32,14 @@ class Wallet:
         return cls(key_pair)
 
     @property
+    def seed(self) -> Seed:
+        return self.key_pair.seed
+
+    @property
+    def algorithm(self) -> SigningAlgorithm:
+        return self.key_pair.algorithm
+
+    @property
     def account_id(self) -> AccountId:
         return self.key_pair.account_id
 
@@ -46,15 +59,14 @@ class Wallet:
         return self.key_pair.sign(message)
 
     def sign_transaction(self, transaction: Transaction) -> SignedTransaction:
-        blob = serialize_transaction(transaction, signing=True)
-        signature = self.sign(blob)
+        result = {**transaction, 'SigningPubKey': self.public_key.hex().upper()}
+        blob = serialize_transaction(result, signing=True)
+        signature = self.sign(PREFIX_TRANSACTION_SIGNATURE + blob)
+        result['TxnSignature'] = signature.hex().upper()
+        blob = serialize_transaction(result)
         digest = sha512half(PREFIX_TRANSACTION_ID + blob)
-        return {
-            **transaction,
-            'SigningPubKey': self.public_key.hex().upper(),
-            'TxnSignature': signature.hex().upper(),
-            'hash': digest.hex().upper(),
-        }
+        result['hash'] = digest.hex().upper()
+        return result
 
     def verify(self, message: bytes, signature: bytes) -> bool:
         return self.key_pair.verify(message, t.cast(Signature, signature))
