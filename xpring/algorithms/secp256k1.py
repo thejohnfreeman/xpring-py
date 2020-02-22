@@ -66,6 +66,11 @@ def sign(message: bytes, private_key: PrivateKey) -> Signature:
         curve=curve.secp256k1,
         prehashed=True,
     )
+    # Both (r, s) and (r, -s mod G = G - s) are valid, canonical signatures.
+    # (r, s) is fully canonical only when s <= G - s.
+    s_inverse = GROUP_ORDER - s
+    if s > s_inverse:
+        s = s_inverse
     signature = DEREncoder.encode_signature(r, s)
     return t.cast(Signature, signature)
 
