@@ -85,17 +85,19 @@ want to leave these low-level responsibilities to the ``Client``.
 Client
 ------
 
-``Client`` is the gateway into the XRP Ledger.
+``Client`` is the gateway to the XRP Ledger.
+It is constructed with the URL of the gRPC service of a rippled_ server.
+If you are running the server yourself,
+you need to configure the ``[port_grpc]`` stanza in your configuration file.
+In the example_ configuration file, it is commented_ out.
 
-Construct
----------
-
-``Client`` is constructed with the URL of a Xpring server.
-You may use the one operated by Ripple for the XRP testnet.
+.. _rippled: https://github.com/ripple/rippled
+.. _example: https://github.com/ripple/rippled/blob/develop/cfg/rippled-example.cfg
+.. _commented: https://github.com/ripple/rippled/blob/0c6d380780ae368a2236a2e8e3e42efa4a1d2b46/cfg/rippled-example.cfg#L1181-L1183
 
 .. code-block:: python
 
-   url = 'grpc.xpring.tech:80'
+   url = 'localhost:50051'
    client = xpring.Client.from_url(url)
 
 
@@ -104,24 +106,19 @@ Account
 
 .. code-block:: python
 
-   address = 'r3v29rxf54cave7ooQE6eE7G5VFXofKZT7'
-   client.get_account_info(address)
-   # Account(
-   #   balance=1000000000,
-   #   sequence=1,
-   #   previous_txn_id='7029D77041446B8E6BF3B3302DE7F90CEB9CF4C16AED54B7F81C2EC7A2B3D1BA',
-   #   previous_txn_lgr_seq=4402909,
-   # )
-
-
-Balance
--------
-
-.. code-block:: python
-
-   address = 'r3v29rxf54cave7ooQE6eE7G5VFXofKZT7'
-   client.get_balance(address)
-   # 1000000000
+   >>> client.get_account(wallet.address)
+   account_data {
+     account {
+       address: "rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY"
+     }
+     balance {
+       drops: 999999820
+     }
+     sequence: 10
+     previous_transaction_id: b"..."
+     previous_transaction_ledger_sequence: 4845872
+   }
+   ledger_index: 4869818
 
 
 Fee
@@ -129,8 +126,55 @@ Fee
 
 .. code-block:: python
 
-   client.get_fee()
-   # 12
+   >>> client.get_fee()
+   current_ledger_size: 6
+   drops {
+     base_fee {
+       drops: 10
+     }
+     median_fee {
+       drops: 5000
+     }
+     minimum_fee {
+       drops: 10
+     }
+     open_ledger_fee {
+       drops: 10
+     }
+   }
+   expected_ledger_size: 25
+   ledger_current_index: 4869844
+   levels {
+     median_level: 128000
+     minimum_level: 256
+     open_ledger_level: 256
+     reference_level: 256
+   }
+   max_queue_size: 2000
+
+
+Submit
+------
+
+.. code-block:: python
+
+   >>> unsigned_transaction = {
+   ...     'Account': 'rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY',
+   ...     'Amount': '10',
+   ...     'Destination': 'rNJDvXkaBRwJYdeEcx9pchE2SecMkH3FLz',
+   ...     'Fee': '10',
+   ...     'Flags': 0x80000000,
+   ...     'Sequence': 9,
+   ...     'TransactionType': 'Payment'
+   ... }
+   >>> signed_transaction = wallet.sign_transaction(unsigned_transaction)
+   >>> client.submit(signed_transaction)
+   engine_result {
+     result_type: RESULT_TYPE_TES
+     result: "tesSUCCESS"
+   }
+   engine_result_message: "The transaction was applied. Only final in a validated ledger."
+   hash: b"..."
 
 
 .. end-include
