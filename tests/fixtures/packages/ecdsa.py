@@ -1,3 +1,4 @@
+import hashlib
 import typing as t
 
 from ecdsa import curves, SigningKey, VerifyingKey
@@ -17,9 +18,9 @@ def make_signing_key(signing_key_bytes: bytes) -> SigningKey:
 
 
 def sign(signing_key: SigningKey, message_digest_bytes: bytes) -> bytes:
-    return signing_key.sign_deterministic(
+    return signing_key.sign_digest_deterministic(
         message_digest_bytes,
-        hashfunc=IdentityHash,
+        hashfunc=hashlib.sha256,
         sigencode=sigencode_der_canonize,
     )
 

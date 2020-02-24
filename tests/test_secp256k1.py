@@ -78,3 +78,21 @@ def test_agreement(
     assert module2.verify(
         verifying_key2, message_digest_bytes, signature_bytes1
     )
+
+
+@pytest.mark.xfail
+@pytest.mark.parametrize(*SIGNATURE_EXAMPLES)
+def test_equal_signature(
+    signing_key_hex: str,
+    message_digest_hex: str,
+    signature_hex: str,
+):
+    signing_key_bytes = bytes.fromhex(signing_key_hex)
+    message_digest_bytes = bytes.fromhex(message_digest_hex)
+    signing_key_ecdsa = ecdsa.make_signing_key(signing_key_bytes)
+    signing_key_fastecdsa = fastecdsa.make_signing_key(signing_key_bytes)
+    signature_ecdsa = ecdsa.sign(signing_key_ecdsa, message_digest_bytes)
+    signature_fastecdsa = fastecdsa.sign(
+        signing_key_fastecdsa, message_digest_bytes
+    )
+    assert signature_ecdsa.hex() == signature_fastecdsa.hex()
