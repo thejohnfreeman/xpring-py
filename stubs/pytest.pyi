@@ -16,6 +16,9 @@ class Mark:
     ) -> t.Callable[[Test], Test]:
         ...
 
+    def xfail(self, test: Test) -> Test:
+        ...
+
 
 def param(*args: t.Any, id: str = None):
     ...

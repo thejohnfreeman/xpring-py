@@ -26,6 +26,14 @@ class SigningKey:
     ) -> bytes:
         ...
 
+    def sign_digest_deterministic(
+        self,
+        digest: bytes,
+        hashfunc: HashFunction = None,
+        sigencode: Encoder = sigencode_string,
+    ) -> bytes:
+        ...
+
 
 class VerifyingKey:
 
