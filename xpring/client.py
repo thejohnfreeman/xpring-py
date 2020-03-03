@@ -6,7 +6,6 @@ from xpring.proto.v1.get_account_info_pb2 import (
     GetAccountInfoResponse,
 )
 from xpring.proto.v1.account_pb2 import AccountAddress
-from xpring.proto.v1.common_pb2 import Account
 from xpring.proto.v1.get_fee_pb2 import (
     GetFeeRequest,
     GetFeeResponse,
