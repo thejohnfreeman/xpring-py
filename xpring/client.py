@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 
 import grpc
-from xpring.proto.v1.account_info_pb2 import (
+from xpring.proto.v1.get_account_info_pb2 import (
     GetAccountInfoRequest,
     GetAccountInfoResponse,
 )
-from xpring.proto.v1.amount_pb2 import AccountAddress
-from xpring.proto.v1.fee_pb2 import (
+from xpring.proto.v1.account_pb2 import AccountAddress
+from xpring.proto.v1.common_pb2 import Account
+from xpring.proto.v1.get_fee_pb2 import (
     GetFeeRequest,
     GetFeeResponse,
 )
-from xpring.proto.v1.ledger_objects_pb2 import AccountRoot
 from xpring.proto.v1.submit_pb2 import (
     SubmitTransactionRequest,
     SubmitTransactionResponse,

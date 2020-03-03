@@ -40,7 +40,7 @@ def proto(c):
     # When protoc runs, it recreates the relative directory structure.
     # In other words, the source `{import_dir}/rpc/v1/tx.proto`
     # will generate a source `{dst_dir}/rpc/v1/tx_pb2.py`.
-    source_dir = Path('submodules/rippled/src/ripple/proto/rpc/v1')
+    source_dir = Path('submodules/rippled/src/ripple/proto/org/xrpl/rpc/v1')
     dst_dir = Path('xpring/proto/v1')
 
     with tempfile.TemporaryDirectory() as tmp_dir:

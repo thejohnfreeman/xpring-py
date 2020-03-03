@@ -109,14 +109,30 @@ Account
    >>> client.get_account(wallet.address)
    account_data {
      account {
-       address: "rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY"
+       value {
+         address: "rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY"
+       }
      }
      balance {
-       drops: 999999820
+       value {
+         xrp_amount {
+           drops: 999999820
+         }
+       }
      }
-     sequence: 10
-     previous_transaction_id: b"..."
-     previous_transaction_ledger_sequence: 4845872
+     sequence: {
+       value: 10
+     }
+     flags {
+     }
+     owner_count {
+     }
+     previous_transaction_id {
+       value: b"..."
+     }
+     previous_transaction_ledger_sequence {
+       value: 4845872
+     }
    }
    ledger_index: 4869818
 
@@ -128,7 +144,7 @@ Fee
 
    >>> client.get_fee()
    current_ledger_size: 6
-   drops {
+   fee {
      base_fee {
        drops: 10
      }
@@ -174,6 +190,14 @@ Submit
      result: "tesSUCCESS"
    }
    engine_result_message: "The transaction was applied. Only final in a validated ledger."
+   hash: b"..."
+   >>> client.submit(signed_transaction)
+   engine_result {
+     result_type: RESULT_TYPE_TEF
+     result: "tefPAST_SEQ"
+   }
+   engine_result_code: -190
+   engine_result_message: "This sequence number has already passed."
    hash: b"..."
 
 
