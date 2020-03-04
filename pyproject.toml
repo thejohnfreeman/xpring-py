@@ -8,7 +8,7 @@ repository = "https://github.com/thejohnfreeman/xpring-py/"
 readme = "README.rst"
 license = "ISC"
 packages = [{ include = "xpring" }]
-include = ["xpring/proto/*.py*", "xpring/definitions.json"]
+include = ["xpring/proto/v1/*.py*", "xpring/definitions.json"]
 
 [tool.poetry.dependencies]
 python = ">=3.6"
