@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 import typing as t
 
 import typing_extensions as tex
@@ -40,3 +41,17 @@ Amount = t.Union[XrpAmount, NonXrpAmount]
 # TODO: TypedDict instead of Mapping.
 Transaction = t.Mapping
 SignedTransaction = t.Mapping
+
+DigestLike = t.Union[str, bytes]
+
+
+def to_digest(digest_like: DigestLike) -> bytes:
+    if isinstance(digest_like, bytes):
+        return digest_like
+    return bytes.fromhex(digest_like)
+
+
+class TransactionStatus(Enum):
+    FAILED = 1
+    PENDING = None
+    SUCCEEDED = 0
