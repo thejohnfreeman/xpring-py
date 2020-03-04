@@ -201,6 +201,166 @@ Submit
    hash: b"..."
 
 
+Transaction
+-----------
+
+.. code-block:: python
+
+   >>> txid = bytes.fromhex(signed_transaction['hash'])
+   >>> client.get_transaction(txid)
+   transaction {
+     account {
+       value {
+         address: "rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY"
+       }
+     }
+     fee {
+       drops: 10
+     }
+     sequence {
+       value: 10
+     }
+     payment {
+       amount {
+         value {
+           xrp_amount {
+             drops: 10
+           }
+         }
+       }
+       destination {
+         value {
+           address: "rNJDvXkaBRwJYdeEcx9pchE2SecMkH3FLz"
+         }
+       }
+     }
+     signing_public_key {
+       value: b"..."
+     }
+     transaction_signature {
+       value: b"..."
+     }
+     flags {
+       value: 2147483648
+     }
+   }
+   ledger_index: 5124377
+   hash: b"..."
+   validated: true
+   meta {
+     transaction_index: 1
+     transaction_result {
+       result_type: RESULT_TYPE_TES
+       result: "tesSUCCESS"
+     }
+     affected_nodes {
+       ledger_entry_type: LEDGER_ENTRY_TYPE_ACCOUNT_ROOT
+       ledger_index: b"..."
+       modified_node {
+         final_fields {
+           account_root {
+             account {
+               value {
+                 address: "rNJDvXkaBRwJYdeEcx9pchE2SecMkH3FLz"
+               }
+             }
+             balance {
+               value {
+                 xrp_amount {
+                   drops: 1000000100
+                 }
+               }
+             }
+             sequence {
+               value: 1
+             }
+             flags {
+             }
+             owner_count {
+             }
+           }
+         }
+         previous_fields {
+           account_root {
+             balance {
+               value {
+                 xrp_amount {
+                   drops: 1000000090
+                 }
+               }
+             }
+           }
+         }
+         previous_transaction_id {
+           value: b"..."
+         }
+         previous_transaction_ledger_sequence {
+           value: 4845872
+         }
+       }
+     }
+     affected_nodes {
+       ledger_entry_type: LEDGER_ENTRY_TYPE_ACCOUNT_ROOT
+       ledger_index: b"..."
+       modified_node {
+         final_fields {
+           account_root {
+             account {
+               value {
+                 address: "rDuKotkyx18D5WqWCA4mVhRWK2YLqDFKaY"
+               }
+             }
+             balance {
+               value {
+                 xrp_amount {
+                   drops: 999999800
+                 }
+               }
+             }
+             sequence {
+               value: 11
+             }
+             flags {
+             }
+             owner_count {
+             }
+           }
+         }
+         previous_fields {
+           account_root {
+             balance {
+               value {
+                 xrp_amount {
+                   drops: 999999820
+                 }
+               }
+             }
+             sequence {
+               value: 10
+             }
+           }
+         }
+         previous_transaction_id {
+           value: b"..."
+         }
+         previous_transaction_ledger_sequence {
+           value: 4845872
+         }
+       }
+     }
+     delivered_amount {
+       value {
+         xrp_amount {
+           drops: 10
+         }
+       }
+     }
+   }
+   date {
+     value: 636581642
+   }
+
+
 .. end-include
 
 

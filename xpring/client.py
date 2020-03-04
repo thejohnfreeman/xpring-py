@@ -10,6 +10,10 @@ from xpring.proto.v1.get_fee_pb2 import (
     GetFeeRequest,
     GetFeeResponse,
 )
+from xpring.proto.v1.get_transaction_pb2 import (
+    GetTransactionRequest,
+    GetTransactionResponse,
+)
 from xpring.proto.v1.submit_pb2 import (
     SubmitTransactionRequest,
     SubmitTransactionResponse,
@@ -44,3 +48,7 @@ class Client:
         blob = serialize_transaction(signed_transaction)
         request = SubmitTransactionRequest(signed_transaction=blob)
         return self.grpc_client.SubmitTransaction(request)
+
+    def get_transaction(self, txid: bytes) -> GetTransactionResponse:
+        request = GetTransactionRequest(hash=txid)
+        return self.grpc_client.GetTransaction(request)
