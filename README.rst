@@ -97,7 +97,8 @@ In the example_ configuration file, it is commented_ out.
 
 .. code-block:: python
 
-   url = 'localhost:50051'
+   # url = 'main.xrp.xpring.io:50051' # Mainnet
+   url = 'test.xrp.xpring.io:50051' # Testnet
    client = xpring.Client.from_url(url)
 
 
