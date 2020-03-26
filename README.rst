@@ -383,7 +383,7 @@ definitions file:
 
 .. code-block:: shell
 
-   poetry install
+   poetry install --extras py
    poetry run invoke prebuild
 
 .. _Poetry: https://python-poetry.org/docs/
