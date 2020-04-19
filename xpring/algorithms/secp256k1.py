@@ -14,10 +14,7 @@ from xpring.bits import from_bytes, to_bytes
 SEED_PREFIX = b'\x21'
 FAMILY = bytes(4)
 
-GROUP_ORDER = from_bytes(
-    bytes.
-    fromhex('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141')
-)
+GROUP_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 assert curve.secp256k1.q == GROUP_ORDER
 
 
@@ -61,7 +58,7 @@ def sign(message: bytes, private_key: PrivateKey) -> Signature:
     digest = hashes.sha512half(message)
     signing_key = int.from_bytes(private_key, byteorder='big')
     r, s = ecdsa.sign(
-        digest.hex(),
+        digest,
         signing_key,
         curve=curve.secp256k1,
         prehashed=True,

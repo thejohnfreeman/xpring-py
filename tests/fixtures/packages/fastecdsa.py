@@ -17,11 +17,16 @@ def make_signing_key(signing_key_bytes: bytes) -> SigningKey:
 
 def sign(signing_key: SigningKey, message_digest_bytes: bytes) -> bytes:
     r, s = ecdsa.sign(
-        message_digest_bytes.hex(),
+        message_digest_bytes,
         signing_key,
         curve=curve.secp256k1,
         prehashed=True,
     )
+    # Both (r, s) and (r, -s mod q = q - s) are valid, canonical signatures.
+    # (r, s) is fully canonical only when s <= q - s.
+    s_inverse = curve.secp256k1.q - s
+    if s > s_inverse:
+        s = s_inverse
     return DEREncoder.encode_signature(r, s)
 
 
