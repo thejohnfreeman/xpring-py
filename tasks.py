@@ -92,13 +92,7 @@ def prebuild(c):
 
 @task
 def mypy(c):
-    package_name = get_package_name()
-    c.run(
-        f'mypy {package_name} tests',
-        env={'MYPYPATH': 'stubs'},
-        echo=True,
-        pty=pty
-    )
+    c.run(f'mypy', echo=True, pty=pty)
 
 
 @task(pre=[mypy])

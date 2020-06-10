@@ -8,7 +8,6 @@ install:
 script:
   - poetry run invoke prebuild
   - poetry run tox
-  - poetry run invoke mypy
 
 matrix:
   include:
