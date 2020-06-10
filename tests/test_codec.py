@@ -87,6 +87,10 @@ ADDRESS_EXAMPLES = (
             'BA8E78626EE42C41B46D46C3048DF3A1C3C87072',
             'rJrRMgiRgrU6hDF4pgu5DXQdWyPbY35ErN'
         ),
+        (
+            '01156D8C127623E3C55BCF1AE0A2E27E472D1749',
+            'rajMp5xCrc8DqNivrxftgWfnWFLSgDYHP'
+        ),
     ]
 )
 

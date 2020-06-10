@@ -51,14 +51,12 @@ class Codec:
         zeroes = len(string)
         sigfig = string.lstrip(self.alphabet[0])
         zeroes -= len(sigfig)
-        sum = 0
+        number = 0
         for c in sigfig:
-            sum = sum * self.base + self.alphabet.index(c)
-        # Special-case the first character to avoid overshooting.
-        max = pow(self.base, len(sigfig) - 1) * self.alphabet.index(sigfig[0])
-        # 256 is the base for byte encoding.
-        length = math.ceil(math.log(max, 256))
-        return (b'\0' * zeroes) + sum.to_bytes(length, 'big')
+            number = number * self.base + self.alphabet.index(c)
+        # How many bytes do we need to represent this integer?
+        length = math.ceil(math.log(number, 256))
+        return (b'\0' * zeroes) + number.to_bytes(length, 'big')
 
     def decode_with_checksum(self, string: str) -> bytes:
         bites = self.decode(string)
