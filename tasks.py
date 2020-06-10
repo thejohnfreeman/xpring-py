@@ -70,8 +70,6 @@ def proto(c):
         )
         # prefix empty: from type_pb2 import
         substitute(f'{tmp_dir}/**/*.pyi', '^from\s+(\S+_pb2)', 'from .\g<1>')
-        # https://github.com/dropbox/mypy-protobuf/issues/116
-        substitute(f'{tmp_dir}/**/*.pyi', '(\S+\s*)global___', '\g<1>')
 
         Path(dst_dir).mkdir(exist_ok=True)
         (tmp_dir / prefix).rename(dst_dir)
