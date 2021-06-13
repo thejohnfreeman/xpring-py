@@ -85,7 +85,7 @@ def serialize_amount(amount: Amount) -> bytes:
     """
     if isinstance(amount, str):
         value = int(amount)
-        sign = int(value > 0)
+        sign = int(value >= 0)
         magnitude = abs(value)
         assert magnitude <= 10**17
         return to_bytes(sign << 62 | magnitude, 8)
