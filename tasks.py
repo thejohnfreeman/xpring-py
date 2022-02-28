@@ -79,7 +79,7 @@ def proto(c):
 @task
 def definitions(c):
     shutil.copy(
-        'submodules/ripple-binary-codec/src/enums/definitions.json', 'xpring'
+        'submodules/xrpl.js/packages/ripple-binary-codec/src/enums/definitions.json', 'xpring'
     )
 
 

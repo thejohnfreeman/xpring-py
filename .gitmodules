@@ -1,9 +1,9 @@
-[submodule "ripple-binary-codec"]
-	path = submodules/ripple-binary-codec
-	url = https://github.com/ripple/ripple-binary-codec.git
 [submodule "submodules/xrpl-dev-portal"]
 	path = submodules/xrpl-dev-portal
 	url = https://github.com/ripple/xrpl-dev-portal
 [submodule "submodules/rippled"]
 	path = submodules/rippled
 	url = https://github.com/ripple/rippled.git
+[submodule "xrpl.js"]
+	path = submodules/xrpl.js
+	url = https://github.com/XRPLF/xrpl.js.git
