@@ -66,7 +66,7 @@ for i in range(3):
 
 with (
     project_dir /
-    'submodules/ripple-binary-codec/test/fixtures/codec-fixtures.json'
+    'submodules/xrpl.js/packages/ripple-binary-codec/test/fixtures/codec-fixtures.json'
 ).open() as file:
     table = json.load(file)
 for category, fixtures in table.items():
