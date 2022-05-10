@@ -36,3 +36,53 @@ poetry run invoke ${task}
 [Mypy]: https://mypy.readthedocs.io/
 [Pylint]: https://www.pylint.org/
 [Pydocstyle]: http://www.pydocstyle.org/
+
+
+## Updating the package for new definitions
+
+When it comes time to publish a new version to handle new ledger types or
+other updates to rippled, follow these steps:
+
+1. Update the rippled dependency:
+
+```shell
+cd submodules/rippled
+git fetch origin
+git merge --ff origin/develop
+```
+
+2. Rebuild the protobuf definitions:
+
+```shell
+rm -rf xpring/proto/v1
+poetry run invoke prebuild
+```
+
+3. Test the changes:
+
+```shell
+poetry run invoke test
+```
+
+4. Bump the version:
+
+```shell
+poetry version patch
+```
+
+5. Commit the changes:
+
+```shell
+git add --update .
+git commit --message '...'
+git tag v...
+git push --tags
+```
+
+6. Publish the updates:
+
+```shell
+poetry build
+poetry publish --repository test
+poetry publish
+```
