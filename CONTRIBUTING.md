@@ -43,7 +43,14 @@ poetry run invoke ${task}
 When it comes time to publish a new version to handle new ledger types or
 other updates to rippled, follow these steps:
 
-1. Update the rippled dependency:
+1. Add at least one test transaction and confirm that they fail to serialize:
+
+```shell
+vim tests/test_definitions.py
+poetry run invoke test
+```
+
+2. Update the rippled dependency:
 
 ```shell
 cd submodules/rippled
@@ -51,35 +58,36 @@ git fetch origin
 git merge --ff origin/develop
 ```
 
-2. Rebuild the protobuf definitions:
+3. Rebuild the protobuf definitions:
 
 ```shell
 rm -rf xpring/proto/v1
 poetry run invoke prebuild
 ```
 
-3. Test the changes:
+4. Confirm that the tests now pass:
 
 ```shell
 poetry run invoke test
 ```
 
-4. Bump the version:
+5. Bump the version:
 
 ```shell
 poetry version patch
 ```
 
-5. Commit the changes:
+6. Commit the changes:
 
 ```shell
 git add --update .
-git commit --message '...'
+git commit --message 'Migrate to definitions as of ...'
 git tag v...
+git push
 git push --tags
 ```
 
-6. Publish the updates:
+7. Publish the updates:
 
 ```shell
 poetry build
