@@ -50,12 +50,15 @@ vim tests/test_definitions.py
 poetry run invoke test
 ```
 
-2. Update the rippled dependency:
+2. Update the rippled and xrpl.js dependencies:
 
 ```shell
 cd submodules/rippled
 git fetch origin
 git merge --ff origin/develop
+cd submodules/xrpl.js
+git fetch origin
+git merge --ff origin/main
 ```
 
 3. Rebuild the protobuf definitions:
