@@ -74,23 +74,30 @@ poetry run invoke prebuild
 poetry run invoke test
 ```
 
-5. Bump the version:
+5. Commit the changes:
+
+```shell
+git add --update .
+git commit --message 'Migrate to definitions as of ...'
+```
+
+6. Bump the version:
 
 ```shell
 poetry version patch
 ```
 
-6. Commit the changes:
+7. Commit the changes:
 
 ```shell
 git add --update .
-git commit --message 'Migrate to definitions as of ...'
+git commit --message 'Bump version to ...'
 git tag v...
 git push
 git push --tags
 ```
 
-7. Publish the updates:
+8. Publish the updates:
 
 ```shell
 poetry build
