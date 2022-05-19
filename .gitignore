@@ -8,3 +8,4 @@ __pycache__/
 /dist/
 /xpring/proto/
 /xpring/definitions.json
+/tests/venv/
