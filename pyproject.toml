@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "xpring"
-version = "0.6.2"
+version = "0.6.3"
 description = ""
 authors = ["John Freeman <jfreeman@ripple.com>"]
 documentation = "https://xpring-py.readthedocs.io/"
